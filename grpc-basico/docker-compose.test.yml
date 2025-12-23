@@ -1,0 +1,46 @@
+version: '3.8'
+
+# Configuración para ejecutar todos los tests automáticamente
+
+services:
+  # Servidor gRPC
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grpc-basico-server-test
+    ports:
+      - "50051:50051"
+    command: npm run server
+    networks:
+      - grpc-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50051"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Cliente que ejecuta todos los tests automáticamente
+  test-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grpc-basico-test
+    depends_on:
+      server:
+        condition: service_healthy
+    environment:
+      - SERVER_URL=server:50051
+    command: >
+      sh -c "
+        echo 'Esperando que el servidor esté listo...' &&
+        sleep 3 &&
+        echo 'Ejecutando tests automáticos...' &&
+        echo '6' | npm run client
+      "
+    networks:
+      - grpc-network
+
+networks:
+  grpc-network:
+    driver: bridge

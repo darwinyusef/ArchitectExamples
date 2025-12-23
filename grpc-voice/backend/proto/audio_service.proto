@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package audiostream;
+
+// Servicio de streaming de audio
+service AudioStreamService {
+  // Streaming bidireccional: cliente envía chunks de audio, servidor responde con transcripciones
+  rpc StreamAudio(stream AudioChunk) returns (stream TranscriptionResponse);
+
+  // Método unario: enviar un archivo completo
+  rpc TranscribeAudio(AudioFile) returns (TranscriptionResponse);
+}
+
+// Chunk de audio para streaming
+message AudioChunk {
+  bytes audio_data = 1;        // Datos binarios del audio (MP3)
+  int32 chunk_index = 2;       // Índice del chunk
+  string session_id = 3;       // ID de sesión para agrupar chunks
+  AudioMetadata metadata = 4;  // Metadata del audio
+}
+
+// Archivo de audio completo
+message AudioFile {
+  bytes audio_data = 1;
+  string filename = 2;
+  AudioMetadata metadata = 3;
+}
+
+// Metadata del audio
+message AudioMetadata {
+  string format = 1;           // Formato: mp3, wav, etc.
+  int32 sample_rate = 2;       // Tasa de muestreo
+  int32 channels = 3;          // Número de canales
+  string language = 4;         // Idioma (es, en, etc.)
+}
+
+// Respuesta de transcripción
+message TranscriptionResponse {
+  string text = 1;             // Texto transcrito
+  string session_id = 2;       // ID de sesión
+  float confidence = 3;        // Confianza (0-1)
+  int64 timestamp = 4;         // Timestamp Unix
+  bool is_final = 5;           // Si es la transcripción final
+  TranscriptionMetadata metadata = 6;
+}
+
+// Metadata de la transcripción
+message TranscriptionMetadata {
+  float duration = 1;          // Duración del audio procesado
+  string language_detected = 2; // Idioma detectado
+  int32 words_count = 3;       // Cantidad de palabras
+}

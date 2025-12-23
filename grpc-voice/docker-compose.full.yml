@@ -1,0 +1,240 @@
+version: '3.8'
+
+# Docker Compose completo: Backend gRPC + Whisper + RabbitMQ + Frontend
+# Uso: docker-compose -f docker-compose.full.yml up -d
+
+services:
+  # ==========================================
+  # RabbitMQ - Message Queue
+  # ==========================================
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: grpc-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=/
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Whisper API - Transcripción de Audio
+  # ==========================================
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: grpc-whisper
+    ports:
+      - "9000:9000"
+    environment:
+      - ASR_MODEL=base          # tiny, base, small, medium, large
+      - ASR_ENGINE=openai_whisper
+      - WORKERS=1
+      - LOG_LEVEL=info
+    volumes:
+      - whisper_models:/root/.cache/whisper
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Backend - FastAPI + gRPC Server
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: grpc-backend
+    ports:
+      - "8001:8001"   # FastAPI REST API
+      - "50051:50051" # gRPC Server
+    environment:
+      # Puertos
+      - API_PORT=8001
+      - GRPC_PORT=50051
+
+      # Whisper (usar servicio interno)
+      - WHISPER_API_URL=http://whisper:9000
+      - WHISPER_MODEL=base
+      - WHISPER_DEVICE=cpu
+
+      # RabbitMQ (usar servicio interno)
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE=transcriptions
+      - RABBITMQ_QUEUE=transcription_queue
+      - RABBITMQ_ROUTING_KEY=transcription.new
+
+      # Audio
+      - MAX_AUDIO_SIZE_MB=25
+      - TEMP_AUDIO_DIR=/app/temp_audio
+
+    volumes:
+      - ./backend:/app
+      - backend_temp:/app/temp_audio
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      whisper:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    restart: unless-stopped
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Envoy Proxy - gRPC-Web Gateway
+  # ==========================================
+  envoy:
+    image: envoyproxy/envoy:v1.28-latest
+    container_name: grpc-envoy
+    ports:
+      - "8080:8080"   # gRPC-Web
+      - "9901:9901"   # Admin
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --log-level info
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9901/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Frontend - React App
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: grpc-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8001
+      - VITE_GRPC_URL=http://localhost:8080
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+      - envoy
+    restart: unless-stopped
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Consumer (Opcional) - Procesar mensajes de RabbitMQ
+  # ==========================================
+  consumer:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: grpc-consumer
+    command: python consumer_example.py
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE=transcriptions
+      - RABBITMQ_QUEUE=transcription_queue
+      - RABBITMQ_ROUTING_KEY=transcription.new
+    volumes:
+      - ./backend:/app
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - grpc-network
+    profiles:
+      - with-consumer  # Solo se inicia si se especifica: --profile with-consumer
+
+# ==========================================
+# Volumes
+# ==========================================
+volumes:
+  rabbitmq_data:
+    driver: local
+  whisper_models:
+    driver: local
+  backend_temp:
+    driver: local
+
+# ==========================================
+# Networks
+# ==========================================
+networks:
+  grpc-network:
+    driver: bridge
+
+# ==========================================
+# COMANDOS ÚTILES
+# ==========================================
+# Iniciar todos los servicios:
+#   docker-compose -f docker-compose.full.yml up -d
+#
+# Iniciar con consumer:
+#   docker-compose -f docker-compose.full.yml --profile with-consumer up -d
+#
+# Ver logs de un servicio:
+#   docker-compose -f docker-compose.full.yml logs -f backend
+#
+# Ver logs de todos:
+#   docker-compose -f docker-compose.full.yml logs -f
+#
+# Detener servicios:
+#   docker-compose -f docker-compose.full.yml down
+#
+# Detener y eliminar volúmenes:
+#   docker-compose -f docker-compose.full.yml down -v
+#
+# Reconstruir servicios:
+#   docker-compose -f docker-compose.full.yml up -d --build
+#
+# Ver estado de servicios:
+#   docker-compose -f docker-compose.full.yml ps
+#
+# Ejecutar comando en contenedor:
+#   docker-compose -f docker-compose.full.yml exec backend bash
+#
+# ==========================================
+# SERVICIOS DISPONIBLES
+# ==========================================
+# Frontend:           http://localhost:3000
+# Backend API:        http://localhost:8001
+# API Docs:           http://localhost:8001/docs
+# gRPC Server:        localhost:50051
+# gRPC-Web (Envoy):   http://localhost:8080
+# RabbitMQ UI:        http://localhost:15672 (guest/guest)
+# Whisper API:        http://localhost:9000
+# Whisper Docs:       http://localhost:9000/docs
+# Envoy Admin:        http://localhost:9901

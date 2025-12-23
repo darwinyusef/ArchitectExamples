@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # Backend - FastAPI + gRPC Server
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"  # FastAPI
+      - "50051:50051" # gRPC
+    environment:
+      - GRPC_PORT=50051
+      - API_PORT=8001
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - WHISPER_MODEL=base
+      - WHISPER_DEVICE=cpu
+    volumes:
+      - ./backend:/app
+      - audio_temp:/app/temp_audio
+    depends_on:
+      - rabbitmq
+    networks:
+      - grpc-voice-network
+    restart: unless-stopped
+
+  # Frontend - React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8001
+      - VITE_GRPC_URL=http://localhost:8080
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - grpc-voice-network
+    restart: unless-stopped
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - grpc-voice-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # Envoy Proxy para gRPC-Web (opcional)
+  envoy:
+    image: envoyproxy/envoy:v1.28-latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml
+    depends_on:
+      - backend
+    networks:
+      - grpc-voice-network
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:
+  audio_temp:
+
+networks:
+  grpc-voice-network:
+    driver: bridge

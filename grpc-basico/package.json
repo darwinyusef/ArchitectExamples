@@ -1,0 +1,34 @@
+{
+  "name": "grpc-basico",
+  "version": "1.0.0",
+  "description": "Proyecto básico para aprender gRPC con Node.js y TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "proto": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./proto/generated --grpc_out=grpc_js:./proto/generated --ts_out=grpc_js:./proto/generated --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts -I ./proto ./proto/*.proto",
+    "build": "tsc",
+    "server": "ts-node server/index.ts",
+    "client": "ts-node client/index.ts",
+    "dev:server": "nodemon --watch 'server/**/*.ts' --exec 'ts-node' server/index.ts",
+    "dev:client": "nodemon --watch 'client/**/*.ts' --exec 'ts-node' client/index.ts"
+  },
+  "keywords": [
+    "grpc",
+    "tutorial",
+    "nodejs",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.9.0",
+    "@grpc/proto-loader": "^0.7.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "grpc-tools": "^1.12.4",
+    "grpc_tools_node_protoc_ts": "^5.3.3",
+    "nodemon": "^3.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}

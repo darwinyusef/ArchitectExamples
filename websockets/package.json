@@ -1,0 +1,34 @@
+{
+  "name": "websockets-ejemplos-reales",
+  "version": "1.0.0",
+  "description": "Ejemplos realistas de WebSockets con Socket.io",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "chat": "node examples/chat/server.js",
+    "dashboard": "node examples/dashboard/server.js",
+    "notifications": "node examples/notifications/server.js",
+    "collab": "node examples/collaborative-editor/server.js"
+  },
+  "keywords": [
+    "websockets",
+    "socket.io",
+    "real-time",
+    "chat",
+    "dashboard",
+    "collaborative"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.0",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}

@@ -1,0 +1,265 @@
+version: '3.8'
+
+# Docker Compose para PRODUCCIÓN con HTTPS
+# Dominio: transcript.aquicreamos.com
+# Uso: docker-compose -f docker-compose.prod.yml up -d
+
+services:
+  # ==========================================
+  # Nginx - Reverse Proxy + SSL
+  # ==========================================
+  nginx:
+    image: nginx:alpine
+    container_name: grpc-nginx
+    ports:
+      - "80:80"     # HTTP (redirige a HTTPS)
+      - "443:443"   # HTTPS
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - backend
+      - frontend
+    restart: always
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Certbot - SSL Certificates (Let's Encrypt)
+  # ==========================================
+  certbot:
+    image: certbot/certbot:latest
+    container_name: grpc-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    restart: always
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # RabbitMQ
+  # ==========================================
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: grpc-rabbitmq-prod
+    expose:
+      - "5672"
+      - "15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS:-changeme}
+    volumes:
+      - rabbitmq_prod_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: always
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Whisper API - Modelo Tiny
+  # ==========================================
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: grpc-whisper-prod
+    expose:
+      - "9000"
+    environment:
+      - ASR_MODEL=tiny        # Modelo ligero para producción
+      - ASR_ENGINE=openai_whisper
+      - WORKERS=2             # Procesamiento paralelo
+      - LOG_LEVEL=warning
+    volumes:
+      - whisper_prod_models:/root/.cache/whisper
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: always
+    networks:
+      - grpc-network
+    # Limitar recursos
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  # ==========================================
+  # Backend - FastAPI + gRPC
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: grpc-backend-prod
+    expose:
+      - "8001"
+      - "50051"
+    environment:
+      # API
+      - API_PORT=8001
+      - GRPC_PORT=50051
+
+      # Dominio
+      - DOMAIN=transcript.aquicreamos.com
+      - ALLOWED_ORIGINS=https://transcript.aquicreamos.com
+
+      # Whisper
+      - WHISPER_API_URL=http://whisper:9000
+      - WHISPER_MODEL=tiny
+      - WHISPER_DEVICE=cpu
+
+      # RabbitMQ
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASS:-changeme}@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE=transcriptions
+      - RABBITMQ_QUEUE=transcription_queue
+      - RABBITMQ_ROUTING_KEY=transcription.new
+
+      # Seguridad
+      - ENVIRONMENT=production
+      - DEBUG=false
+
+      # Audio
+      - MAX_AUDIO_SIZE_MB=25
+      - TEMP_AUDIO_DIR=/app/temp_audio
+
+    volumes:
+      - backend_prod_temp:/app/temp_audio
+      - ./backend/logs:/app/logs
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      whisper:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    restart: always
+    networks:
+      - grpc-network
+
+    # Limitar recursos
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+
+  # ==========================================
+  # Envoy Proxy - gRPC-Web Gateway
+  # ==========================================
+  envoy:
+    image: envoyproxy/envoy:v1.28-latest
+    container_name: grpc-envoy-prod
+    expose:
+      - "8080"
+      - "9901"
+    volumes:
+      - ./envoy.prod.yaml:/etc/envoy/envoy.yaml:ro
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --log-level warning
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9901/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Frontend - React (Build estático)
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        - VITE_API_URL=https://transcript.aquicreamos.com/api
+        - VITE_GRPC_URL=https://transcript.aquicreamos.com/grpc
+    container_name: grpc-frontend-prod
+    expose:
+      - "80"
+    restart: always
+    networks:
+      - grpc-network
+
+  # ==========================================
+  # Consumer - Procesar transcripciones (Opcional)
+  # ==========================================
+  consumer:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: grpc-consumer-prod
+    command: python consumer_example.py
+    environment:
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASS:-changeme}@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE=transcriptions
+      - RABBITMQ_QUEUE=transcription_queue
+      - RABBITMQ_ROUTING_KEY=transcription.new
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+    networks:
+      - grpc-network
+    profiles:
+      - with-consumer
+
+# ==========================================
+# Volumes
+# ==========================================
+volumes:
+  rabbitmq_prod_data:
+    driver: local
+  whisper_prod_models:
+    driver: local
+  backend_prod_temp:
+    driver: local
+
+# ==========================================
+# Networks
+# ==========================================
+networks:
+  grpc-network:
+    driver: bridge
+
+# ==========================================
+# INSTRUCCIONES DE DEPLOY
+# ==========================================
+# 1. Configurar variables de entorno:
+#    cp .env.example .env.prod
+#    # Editar .env.prod con credenciales seguras
+#
+# 2. Crear certificados SSL (primera vez):
+#    ./init-letsencrypt.sh transcript.aquicreamos.com
+#
+# 3. Iniciar servicios:
+#    docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+#
+# 4. Verificar:
+#    docker-compose -f docker-compose.prod.yml ps
+#    curl https://transcript.aquicreamos.com/api/health
+#
+# 5. Ver logs:
+#    docker-compose -f docker-compose.prod.yml logs -f

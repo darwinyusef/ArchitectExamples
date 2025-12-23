@@ -1,0 +1,72 @@
+version: '3.8'
+
+# Docker Compose para Whisper API standalone
+# Uso: docker-compose -f docker-compose.whisper.yml up -d
+
+services:
+  whisper-api:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: whisper-api
+    ports:
+      - "9000:9000"  # Puerto para la API de Whisper
+    environment:
+      # Modelo de Whisper a usar
+      # Opciones: tiny, base, small, medium, large
+      - ASR_MODEL=base
+
+      # Dispositivo: cpu o cuda
+      - ASR_ENGINE=openai_whisper
+
+      # Idioma por defecto (opcional)
+      # - ASR_MODEL_LANGUAGE=es
+
+      # Workers para procesamiento paralelo
+      - WORKERS=1
+
+      # Habilitar logs detallados
+      - LOG_LEVEL=info
+
+    # Si tienes GPU NVIDIA, descomenta esto:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+    volumes:
+      # Cachear modelos descargados
+      - whisper_models:/root/.cache/whisper
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    restart: unless-stopped
+
+    networks:
+      - whisper-network
+
+volumes:
+  whisper_models:
+    driver: local
+
+networks:
+  whisper-network:
+    driver: bridge
+
+# NOTAS:
+# 1. Primera ejecución descarga el modelo (puede tardar)
+# 2. Modelos más grandes requieren más RAM:
+#    - tiny: ~1GB RAM
+#    - base: ~1GB RAM
+#    - small: ~2GB RAM
+#    - medium: ~5GB RAM
+#    - large: ~10GB RAM
+# 3. Para GPU, necesitas nvidia-docker instalado
+# 4. API disponible en: http://localhost:9000
+# 5. Documentación: http://localhost:9000/docs

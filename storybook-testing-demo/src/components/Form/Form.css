@@ -1,0 +1,117 @@
+.form-container {
+  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form__title {
+  margin: 0 0 24px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+}
+
+.form__field {
+  margin-bottom: 20px;
+}
+
+.form__field--checkbox {
+  margin-bottom: 24px;
+}
+
+.form__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form__input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form__input:focus {
+  outline: none;
+  border-color: #1ea7fd;
+  box-shadow: 0 0 0 3px rgba(30, 167, 253, 0.1);
+}
+
+.form__input--error {
+  border-color: #dc3545;
+}
+
+.form__input--error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form__input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.form__error {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #dc3545;
+}
+
+.form__checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.form__checkbox-label input[type='checkbox'] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.form__checkbox-label input[type='checkbox']:disabled {
+  cursor: not-allowed;
+}
+
+.form__submit {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  background-color: #1ea7fd;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form__submit:hover:not(:disabled) {
+  background-color: #1890d5;
+}
+
+.form__submit:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 167, 253, 0.3);
+}
+
+.form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

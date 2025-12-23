@@ -1,0 +1,48 @@
+version: '3.8'
+
+# Configuración para desarrollo con hot-reload
+
+services:
+  # Servidor gRPC con auto-reload
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grpc-basico-server-dev
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./server:/app/server
+      - ./proto:/app/proto
+      - ./tsconfig.json:/app/tsconfig.json
+    command: npm run dev:server
+    networks:
+      - grpc-network
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+
+  # Cliente gRPC con auto-reload
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grpc-basico-client-dev
+    depends_on:
+      - server
+    volumes:
+      - ./client:/app/client
+      - ./proto:/app/proto
+      - ./tsconfig.json:/app/tsconfig.json
+    environment:
+      - SERVER_URL=server:50051
+      - NODE_ENV=development
+    command: npm run dev:client
+    networks:
+      - grpc-network
+    stdin_open: true
+    tty: true
+
+networks:
+  grpc-network:
+    driver: bridge

@@ -1,0 +1,75 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Card Component > Snapshot Tests > matches snapshot for basic card 1`] = `
+<article
+  class="card"
+>
+  <div
+    class="card__content"
+  >
+    <h3
+      class="card__title"
+    >
+      Card Title
+    </h3>
+    <p
+      class="card__description"
+    >
+      This is a basic card with a title and description.
+    </p>
+  </div>
+</article>
+`;
+
+exports[`Card Component > Snapshot Tests > matches snapshot for card with image 1`] = `
+<article
+  class="card"
+>
+  <div
+    class="card__image"
+  >
+    <img
+      alt="Beautiful Landscape"
+      src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=200&fit=crop"
+    />
+  </div>
+  <div
+    class="card__content"
+  >
+    <h3
+      class="card__title"
+    >
+      Beautiful Landscape
+    </h3>
+    <p
+      class="card__description"
+    >
+      A stunning view of mountains and forests.
+    </p>
+  </div>
+</article>
+`;
+
+exports[`Card Component > Snapshot Tests > matches snapshot for clickable card 1`] = `
+<article
+  aria-label="Clickable Card card"
+  class="card card--clickable"
+  role="button"
+  tabindex="0"
+>
+  <div
+    class="card__content"
+  >
+    <h3
+      class="card__title"
+    >
+      Clickable Card
+    </h3>
+    <p
+      class="card__description"
+    >
+      Click this card to see the interaction.
+    </p>
+  </div>
+</article>
+`;

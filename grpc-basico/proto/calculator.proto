@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package calculator;
+
+// Servicio de calculadora simple
+service Calculator {
+  // Operación de suma
+  rpc Add (CalculatorRequest) returns (CalculatorResponse) {}
+
+  // Operación de resta
+  rpc Subtract (CalculatorRequest) returns (CalculatorResponse) {}
+
+  // Operación de multiplicación
+  rpc Multiply (CalculatorRequest) returns (CalculatorResponse) {}
+
+  // Operación de división
+  rpc Divide (CalculatorRequest) returns (CalculatorResponse) {}
+
+  // Suma múltiples números con streaming
+  rpc SumStream (stream Number) returns (CalculatorResponse) {}
+}
+
+// Mensaje de petición para operaciones binarias
+message CalculatorRequest {
+  double num1 = 1;
+  double num2 = 2;
+}
+
+// Mensaje de respuesta
+message CalculatorResponse {
+  double result = 1;
+  string error = 2; // mensaje de error si hay alguno
+}
+
+// Mensaje para streaming de números
+message Number {
+  double value = 1;
+}

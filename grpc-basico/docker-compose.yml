@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Servidor gRPC
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grpc-basico-server
+    ports:
+      - "50051:50051"
+    command: npm run server
+    networks:
+      - grpc-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50051"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Cliente gRPC (interactivo)
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grpc-basico-client
+    depends_on:
+      - server
+    environment:
+      - SERVER_URL=server:50051
+    command: npm run client
+    networks:
+      - grpc-network
+    stdin_open: true
+    tty: true
+
+networks:
+  grpc-network:
+    driver: bridge

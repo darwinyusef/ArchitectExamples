@@ -1,0 +1,68 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Button Component > Snapshot Tests > matches snapshot for all size variations 1`] = `
+<button
+  aria-disabled="false"
+  aria-label="Small"
+  class="btn btn--primary btn--small"
+  type="button"
+>
+  Small
+</button>
+`;
+
+exports[`Button Component > Snapshot Tests > matches snapshot for all size variations 2`] = `
+<button
+  aria-disabled="false"
+  aria-label="Medium"
+  class="btn btn--primary btn--medium"
+  type="button"
+>
+  Medium
+</button>
+`;
+
+exports[`Button Component > Snapshot Tests > matches snapshot for all size variations 3`] = `
+<button
+  aria-disabled="false"
+  aria-label="Large"
+  class="btn btn--primary btn--large"
+  type="button"
+>
+  Large
+</button>
+`;
+
+exports[`Button Component > Snapshot Tests > matches snapshot for disabled state 1`] = `
+<button
+  aria-disabled="true"
+  aria-label="Disabled Button"
+  class="btn btn--primary btn--medium btn--disabled"
+  disabled=""
+  type="button"
+>
+  Disabled Button
+</button>
+`;
+
+exports[`Button Component > Snapshot Tests > matches snapshot for primary variant 1`] = `
+<button
+  aria-disabled="false"
+  aria-label="Primary Button"
+  class="btn btn--primary btn--medium"
+  type="button"
+>
+  Primary Button
+</button>
+`;
+
+exports[`Button Component > Snapshot Tests > matches snapshot for secondary variant 1`] = `
+<button
+  aria-disabled="false"
+  aria-label="Secondary Button"
+  class="btn btn--secondary btn--medium"
+  type="button"
+>
+  Secondary Button
+</button>
+`;

@@ -1,0 +1,114 @@
+version: '3.8'
+
+# Docker Compose para gRTC
+# Levanta servidor + Nginx para múltiples clientes
+
+services:
+  # ==========================================
+  # Backend FastAPI + WebSocket
+  # ==========================================
+  backend:
+    build: .
+    container_name: grtc-backend
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./data:/app/data           # Persistir base de datos
+      - ./app:/app/app:ro          # Hot-reload (opcional)
+      - ./static:/app/static:ro
+      - ./templates:/app/templates:ro
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - grtc-network
+
+  # ==========================================
+  # Nginx - Reverse Proxy (Opcional)
+  # ==========================================
+  nginx:
+    image: nginx:alpine
+    container_name: grtc-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - grtc-network
+    profiles:
+      - with-nginx
+
+  # ==========================================
+  # Cliente A (Simulación - Opcional)
+  # ==========================================
+  client-a:
+    image: selenium/standalone-chrome:latest
+    container_name: grtc-client-a
+    ports:
+      - "4444:4444"   # Selenium
+      - "7900:7900"   # VNC viewer
+    environment:
+      - SE_VNC_NO_PASSWORD=1
+    networks:
+      - grtc-network
+    profiles:
+      - with-clients
+
+  # ==========================================
+  # Cliente B (Simulación - Opcional)
+  # ==========================================
+  client-b:
+    image: selenium/standalone-chrome:latest
+    container_name: grtc-client-b
+    ports:
+      - "4445:4444"   # Selenium
+      - "7901:7900"   # VNC viewer
+    environment:
+      - SE_VNC_NO_PASSWORD=1
+    networks:
+      - grtc-network
+    profiles:
+      - with-clients
+
+networks:
+  grtc-network:
+    driver: bridge
+
+# ==========================================
+# COMANDOS ÚTILES
+# ==========================================
+# Iniciar solo backend:
+#   docker-compose up -d
+#
+# Iniciar con Nginx:
+#   docker-compose --profile with-nginx up -d
+#
+# Iniciar con clientes simulados:
+#   docker-compose --profile with-clients up -d
+#
+# Iniciar todo:
+#   docker-compose --profile with-nginx --profile with-clients up -d
+#
+# Ver logs:
+#   docker-compose logs -f backend
+#
+# Detener:
+#   docker-compose down
+#
+# ==========================================
+# ACCESO
+# ==========================================
+# Backend: http://localhost:8001
+# Nginx: http://localhost
+# Cliente A VNC: http://localhost:7900
+# Cliente B VNC: http://localhost:7901

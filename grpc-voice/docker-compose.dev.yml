@@ -1,0 +1,100 @@
+version: '3.8'
+
+# Docker Compose para desarrollo (solo servicios externos)
+# Backend y Frontend se ejecutan localmente
+# Uso: docker-compose -f docker-compose.dev.yml up -d
+
+services:
+  # ==========================================
+  # RabbitMQ - Message Queue
+  # ==========================================
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: grpc-rabbitmq-dev
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_dev_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - grpc-dev-network
+
+  # ==========================================
+  # Whisper API - Transcripción
+  # ==========================================
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: grpc-whisper-dev
+    ports:
+      - "9000:9000"
+    environment:
+      - ASR_MODEL=base
+      - ASR_ENGINE=openai_whisper
+      - WORKERS=1
+      - LOG_LEVEL=info
+    volumes:
+      - whisper_dev_models:/root/.cache/whisper
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - grpc-dev-network
+
+  # ==========================================
+  # Envoy Proxy (Opcional para gRPC-Web)
+  # ==========================================
+  envoy:
+    image: envoyproxy/envoy:v1.28-latest
+    container_name: grpc-envoy-dev
+    ports:
+      - "8080:8080"
+      - "9901:9901"
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --log-level info
+    restart: unless-stopped
+    networks:
+      - grpc-dev-network
+
+volumes:
+  rabbitmq_dev_data:
+  whisper_dev_models:
+
+networks:
+  grpc-dev-network:
+    driver: bridge
+
+# ==========================================
+# PARA DESARROLLO LOCAL
+# ==========================================
+# 1. Iniciar servicios:
+#    docker-compose -f docker-compose.dev.yml up -d
+#
+# 2. Backend (en terminal separada):
+#    cd backend
+#    source venv/bin/activate
+#    python main.py
+#
+# 3. Frontend (en terminal separada):
+#    cd frontend
+#    npm run dev
+#
+# SERVICIOS:
+# - RabbitMQ UI:  http://localhost:15672 (guest/guest)
+# - Whisper API:  http://localhost:9000
+# - Envoy:        http://localhost:8080
+# - Backend:      http://localhost:8001 (local)
+# - Frontend:     http://localhost:3000 (local)

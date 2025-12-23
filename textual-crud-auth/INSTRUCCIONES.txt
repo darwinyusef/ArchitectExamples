@@ -1,0 +1,105 @@
+PROYECTO CRUD CLI CON TEXTUAL Y FASTAPI
+========================================
+
+ESTRUCTURA:
+-----------
+textual-crud-auth/
+├── api/                    # API FastAPI
+│   ├── main.py            # Servidor API con CRUD y autenticación JWT
+│   ├── auth_page.html     # Página de login para el navegador
+│   └── requirements.txt   # Dependencias de la API
+├── cli/                   # CLI con Textual
+│   ├── main.py           # Aplicación CLI interactiva
+│   └── requirements.txt  # Dependencias del CLI
+├── run_api.sh            # Script para iniciar la API
+└── run_cli.sh            # Script para iniciar el CLI
+
+INSTALACIÓN:
+------------
+
+1. Instalar dependencias de la API:
+   cd textual-crud-auth/api
+   pip install -r requirements.txt
+
+2. Instalar dependencias del CLI:
+   cd textual-crud-auth/cli
+   pip install -r requirements.txt
+
+EJECUCIÓN:
+----------
+
+1. INICIAR LA API (Terminal 1):
+   cd textual-crud-auth
+   ./run_api.sh
+
+   O manualmente:
+   cd textual-crud-auth/api
+   python main.py
+
+   La API estará en: http://localhost:8001
+   Documentación Swagger: http://localhost:8001/docs
+
+2. INICIAR EL CLI (Terminal 2):
+   cd textual-crud-auth
+   ./run_cli.sh
+
+   O manualmente:
+   cd textual-crud-auth/cli
+   python main.py
+
+CREDENCIALES DE PRUEBA:
+-----------------------
+Usuario 1: admin / admin123
+Usuario 2: user / user123
+
+FLUJO DE AUTENTICACIÓN:
+-----------------------
+1. Al iniciar el CLI, verás una pantalla de login
+2. Haz clic en "Abrir navegador para login"
+3. Se abrirá tu navegador con el formulario de login
+4. Ingresa las credenciales (admin/admin123 o user/user123)
+5. El navegador enviará el token al CLI automáticamente
+6. El navegador se cerrará y el CLI mostrará la interfaz CRUD
+
+OPERACIONES CRUD EN EL CLI:
+----------------------------
+- N o clic en "Nuevo": Crear un nuevo item
+- Seleccionar item + clic en "Editar": Editar item seleccionado
+- Seleccionar item + clic en "Eliminar": Eliminar item seleccionado
+- R o clic en "Actualizar": Refrescar la lista de items
+- Q: Salir de la aplicación
+
+NAVEGACIÓN:
+-----------
+- Usa las flechas del teclado para moverte por la tabla
+- Tab para cambiar entre elementos
+- Enter para seleccionar botones
+
+CARACTERÍSTICAS:
+----------------
+✓ API REST con FastAPI
+✓ Autenticación JWT
+✓ CRUD completo (Create, Read, Update, Delete)
+✓ CLI interactivo con Textual
+✓ Autenticación por navegador
+✓ Interfaz bonita en terminal
+✓ Manejo de errores
+✓ Base de datos en memoria (items persistentes durante la ejecución)
+
+ENDPOINTS DE LA API:
+--------------------
+POST   /auth/login         - Login (obtener token JWT)
+GET    /auth/verify        - Verificar token
+GET    /auth_page.html     - Página de login
+GET    /items              - Listar todos los items
+GET    /items/{id}         - Obtener un item específico
+POST   /items              - Crear nuevo item
+PUT    /items/{id}         - Actualizar item
+DELETE /items/{id}         - Eliminar item
+
+NOTAS:
+------
+- La API debe estar corriendo ANTES de iniciar el CLI
+- Los datos se almacenan en memoria, se pierden al reiniciar la API
+- El token JWT expira en 30 minutos
+- El CLI abre un servidor temporal en el puerto 8888 para recibir el callback

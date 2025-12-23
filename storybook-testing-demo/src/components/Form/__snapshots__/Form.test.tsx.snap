@@ -1,0 +1,145 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Form Component > Snapshot Tests > matches snapshot for default state 1`] = `
+<div
+  class="form-container"
+>
+  <form
+    class="form"
+    novalidate=""
+  >
+    <h2
+      class="form__title"
+    >
+      Login
+    </h2>
+    <div
+      class="form__field"
+    >
+      <label
+        class="form__label"
+        for="email"
+      >
+        Email
+      </label>
+      <input
+        class="form__input "
+        id="email"
+        type="email"
+        value=""
+      />
+    </div>
+    <div
+      class="form__field"
+    >
+      <label
+        class="form__label"
+        for="password"
+      >
+        Password
+      </label>
+      <input
+        class="form__input "
+        id="password"
+        type="password"
+        value=""
+      />
+    </div>
+    <div
+      class="form__field form__field--checkbox"
+    >
+      <label
+        class="form__checkbox-label"
+      >
+        <input
+          type="checkbox"
+        />
+        <span>
+          Remember me
+        </span>
+      </label>
+    </div>
+    <button
+      aria-busy="false"
+      class="form__submit"
+      type="submit"
+    >
+      Sign In
+    </button>
+  </form>
+</div>
+`;
+
+exports[`Form Component > Snapshot Tests > matches snapshot for submitting state 1`] = `
+<div
+  class="form-container"
+>
+  <form
+    class="form"
+    novalidate=""
+  >
+    <h2
+      class="form__title"
+    >
+      Login
+    </h2>
+    <div
+      class="form__field"
+    >
+      <label
+        class="form__label"
+        for="email"
+      >
+        Email
+      </label>
+      <input
+        class="form__input "
+        disabled=""
+        id="email"
+        type="email"
+        value=""
+      />
+    </div>
+    <div
+      class="form__field"
+    >
+      <label
+        class="form__label"
+        for="password"
+      >
+        Password
+      </label>
+      <input
+        class="form__input "
+        disabled=""
+        id="password"
+        type="password"
+        value=""
+      />
+    </div>
+    <div
+      class="form__field form__field--checkbox"
+    >
+      <label
+        class="form__checkbox-label"
+      >
+        <input
+          disabled=""
+          type="checkbox"
+        />
+        <span>
+          Remember me
+        </span>
+      </label>
+    </div>
+    <button
+      aria-busy="true"
+      class="form__submit"
+      disabled=""
+      type="submit"
+    >
+      Signing in...
+    </button>
+  </form>
+</div>
+`;

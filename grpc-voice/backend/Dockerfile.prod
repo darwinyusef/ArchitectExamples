@@ -1,0 +1,73 @@
+# Dockerfile para producción - Backend
+# Multi-stage build para optimizar tamaño
+
+# ==========================================
+# Stage 1: Builder
+# ==========================================
+FROM python:3.11-slim as builder
+
+WORKDIR /app
+
+# Instalar dependencias de build
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    ffmpeg \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements
+COPY requirements.txt .
+
+# Instalar dependencias en directorio local
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# ==========================================
+# Stage 2: Runtime
+# ==========================================
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Instalar solo dependencias runtime
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copiar dependencias de Python desde builder
+COPY --from=builder /root/.local /root/.local
+
+# Copiar código de la aplicación
+COPY . .
+
+# Generar archivos proto
+RUN python -m grpc_tools.protoc \
+    -I./proto \
+    --python_out=./proto \
+    --grpc_python_out=./proto \
+    proto/audio_service.proto
+
+# Crear directorio para archivos temporales y logs
+RUN mkdir -p temp_audio logs && \
+    chmod 755 temp_audio logs
+
+# Asegurar que los scripts de Python usen las dependencias locales
+ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONUNBUFFERED=1
+
+# Exponer puertos
+EXPOSE 8001 50051
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
+
+# Usuario no-root (seguridad)
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+USER appuser
+
+# Comando para iniciar
+CMD ["python", "main.py"]

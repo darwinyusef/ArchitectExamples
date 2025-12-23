@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC + WebSocket CRUD Demo</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WebRTC + WebSocket CRUD Demo</h1>
+            <p>Demostración de concurrencia y paralelismo con FastAPI</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Sección CRUD -->
+            <section class="crud-section">
+                <h2>CRUD Operations</h2>
+
+                <div class="form-group">
+                    <h3>Crear Item</h3>
+                    <input type="text" id="itemTitle" placeholder="Título">
+                    <textarea id="itemDescription" placeholder="Descripción"></textarea>
+                    <select id="itemStatus">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                    <button onclick="createItem()">Crear Item</button>
+                    <button onclick="createBulkItems()">Crear 5 Items (Bulk)</button>
+                </div>
+
+                <div class="form-group">
+                    <h3>Lista de Items</h3>
+                    <div class="filters">
+                        <select id="filterStatus">
+                            <option value="">Todos</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                        <button onclick="loadItems()">Cargar Items</button>
+                        <button onclick="bulkUpdateStatus()">Actualizar Status (Bulk)</button>
+                    </div>
+                    <div id="itemsList" class="items-list"></div>
+                </div>
+            </section>
+
+            <!-- Sección WebRTC -->
+            <section class="webrtc-section">
+                <h2>WebRTC Connection</h2>
+
+                <div class="connection-info">
+                    <p><strong>Peer ID:</strong> <span id="peerId"></span></p>
+                    <p><strong>Room ID:</strong> <span id="roomId"></span></p>
+                    <p><strong>Estado:</strong> <span id="connectionStatus">Desconectado</span></p>
+                    <p><strong>Peers conectados:</strong> <span id="peerCount">0</span></p>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="roomInput" placeholder="Room ID (ej: room1)" value="room1">
+                    <button onclick="connectToRoom()" id="connectBtn">Conectar al Room</button>
+                    <button onclick="disconnectFromRoom()" id="disconnectBtn" disabled>Desconectar</button>
+                </div>
+
+                <div class="form-group">
+                    <h3>Enviar Mensaje Broadcast</h3>
+                    <input type="text" id="broadcastMessage" placeholder="Mensaje para todos los peers">
+                    <button onclick="sendBroadcast()" id="sendBroadcastBtn" disabled>Enviar</button>
+                </div>
+
+                <div id="messagesLog" class="messages-log">
+                    <h3>Log de Mensajes</h3>
+                    <div id="messages"></div>
+                </div>
+
+                <div id="peersContainer" class="peers-container">
+                    <h3>Peers Conectados</h3>
+                    <div id="peersList"></div>
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <p>Demo de concurrencia con FastAPI, WebSocket y WebRTC</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

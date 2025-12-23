@@ -1,0 +1,106 @@
+PRUEBAS REALIZADAS - API CRUD EN PUERTO 8001
+=============================================
+
+Fecha: 2025-11-21
+Puerto configurado: 8001
+Estado: TODAS LAS PRUEBAS EXITOSAS ✓
+
+CONFIGURACIÓN REALIZADA:
+------------------------
+✓ Cambiado puerto de 8000 a 8001 en api/main.py
+✓ Cambiado puerto de 8000 a 8001 en cli/main.py
+✓ Cambiado puerto de 8000 a 8001 en api/auth_page.html
+✓ Instaladas todas las dependencias de la API
+
+SERVIDOR API:
+-------------
+✓ Servidor iniciado correctamente en http://0.0.0.0:8001
+✓ PID del proceso: 42343
+✓ Sin errores en el inicio
+
+PRUEBAS DE AUTENTICACIÓN:
+--------------------------
+1. POST /auth/login
+   Usuario: admin
+   Password: admin123
+   Resultado: ✓ 200 OK
+   Token generado: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   Token válido y funcional
+
+PRUEBAS CRUD:
+-------------
+1. GET /items (inicial)
+   Resultado: ✓ 200 OK
+   Items retornados: 3
+   - ID 1: Laptop ($1200.00)
+   - ID 2: Mouse ($25.00)
+   - ID 3: Teclado ($80.00)
+
+2. POST /items (crear)
+   Datos: Monitor 4K 27 pulgadas ($450.00)
+   Resultado: ✓ 201 Created
+   ID asignado: 4
+
+3. PUT /items/4 (actualizar)
+   Datos: Monitor 4K 32 pulgadas actualizado ($550.00)
+   Resultado: ✓ 200 OK
+   Item actualizado correctamente
+
+4. DELETE /items/2 (eliminar)
+   Resultado: ✓ 200 OK
+   Item eliminado correctamente
+
+5. GET /items (final)
+   Resultado: ✓ 200 OK
+   Items retornados: 3
+   - ID 1: Laptop ($1200.00)
+   - ID 3: Teclado ($80.00)
+   - ID 4: Monitor 4K 32 pulgadas actualizado ($550.00)
+
+PRUEBAS DE ENDPOINTS ADICIONALES:
+----------------------------------
+1. GET /auth_page.html
+   Resultado: ✓ 200 OK
+   Página HTML servida correctamente (5818 bytes)
+
+LOGS DEL SERVIDOR:
+------------------
+INFO: 127.0.0.1:49806 - "POST /auth/login HTTP/1.1" 200 OK
+INFO: 127.0.0.1:49856 - "GET /items HTTP/1.1" 200 OK
+INFO: 127.0.0.1:49966 - "POST /items HTTP/1.1" 201 Created
+INFO: 127.0.0.1:50023 - "PUT /items/4 HTTP/1.1" 200 OK
+INFO: 127.0.0.1:50070 - "DELETE /items/2 HTTP/1.1" 200 OK
+INFO: 127.0.0.1:50122 - "GET /items HTTP/1.1" 200 OK
+INFO: 127.0.0.1:50215 - "GET /auth_page.html HTTP/1.1" 200 OK
+
+RESUMEN:
+--------
+✓ Todas las operaciones CRUD funcionan correctamente
+✓ La autenticación JWT funciona correctamente
+✓ Los tokens se generan y validan correctamente
+✓ La página HTML de autenticación se sirve correctamente
+✓ El servidor está estable en el puerto 8001
+✓ No se detectaron errores ni warnings
+
+PENDIENTE:
+----------
+→ Probar el CLI de Textual con el navegador
+→ Verificar el flujo completo de autenticación navegador → CLI
+→ Probar todas las operaciones CRUD desde el CLI
+
+COMANDOS PARA PROBAR EL CLI:
+-----------------------------
+Terminal 1 (ya ejecutándose):
+  cd textual-crud-auth/api
+  python main.py
+
+Terminal 2 (para ejecutar):
+  cd textual-crud-auth/cli
+  pip install -r requirements.txt
+  python main.py
+
+NOTAS:
+------
+- El servidor API debe mantenerse ejecutándose
+- Proceso ID: 42343
+- Para detener: kill 42343 o usar Ctrl+C en la terminal del servidor

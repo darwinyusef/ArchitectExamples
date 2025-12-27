@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client - Multiprocessing Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background: #4CAF50;
+            color: white;
+        }
+        .status.disconnected {
+            background: #f44336;
+            color: white;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        #log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 3px solid transparent;
+        }
+        .log-entry.sent {
+            border-left-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+        .log-entry.received {
+            border-left-color: #2196F3;
+            background: rgba(33, 150, 243, 0.1);
+        }
+        .log-entry.error {
+            border-left-color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+        }
+        .log-entry.info {
+            border-left-color: #FF9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+        .timestamp {
+            color: #888;
+            font-size: 11px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .stat-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .job-result {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 WebSocket Client - Multiprocessing Demo</h1>
+
+    <div class="container">
+        <div id="status" class="status disconnected">
+            ❌ Desconectado
+        </div>
+
+        <div class="form-group">
+            <label for="serverUrl">URL del Servidor WebSocket:</label>
+            <input type="text" id="serverUrl" value="ws://localhost:8765"
+                   placeholder="ws://your-droplet-ip:8765">
+        </div>
+
+        <div class="controls">
+            <button id="connectBtn" onclick="connect()">🔌 Conectar</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled>🔌 Desconectar</button>
+            <button onclick="clearLog()">🗑️ Limpiar Log</button>
+            <button onclick="getStats()">📊 Obtener Stats</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📤 Enviar Jobs</h2>
+
+        <div class="form-group">
+            <label for="taskType">Tipo de Tarea:</label>
+            <select id="taskType" onchange="updateTaskForm()">
+                <option value="calcular_fibonacci">Calcular Fibonacci</option>
+                <option value="procesar_imagen">Procesar Imagen</option>
+                <option value="analizar_datos">Analizar Datos</option>
+                <option value="benchmark">Benchmark CPU</option>
+            </select>
+        </div>
+
+        <div id="taskParams">
+            <!-- Se llena dinámicamente -->
+        </div>
+
+        <button onclick="submitJob()">🚀 Enviar Job</button>
+    </div>
+
+    <div class="container">
+        <h2>📊 Estadísticas</h2>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="jobsSent">0</div>
+                <div class="stat-label">Jobs Enviados</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="jobsCompleted">0</div>
+                <div class="stat-label">Jobs Completados</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="avgDuration">0.00s</div>
+                <div class="stat-label">Duración Promedio</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="serverWorkers">-</div>
+                <div class="stat-label">Workers Activos</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📝 Log de Eventos</h2>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        let stats = {
+            jobsSent: 0,
+            jobsCompleted: 0,
+            totalDuration: 0,
+            serverWorkers: 0
+        };
+
+        // Templates para parámetros de cada tipo de tarea
+        const taskTemplates = {
+            calcular_fibonacci: `
+                <div class="form-group">
+                    <label for="fibN">Número N:</label>
+                    <input type="number" id="fibN" value="30" min="1" max="40">
+                    <small>Calcula el N-ésimo número de Fibonacci (1-40)</small>
+                </div>
+            `,
+            procesar_imagen: `
+                <div class="form-group">
+                    <label for="filename">Nombre de archivo:</label>
+                    <input type="text" id="filename" value="imagen_test.jpg">
+                </div>
+            `,
+            analizar_datos: `
+                <div class="form-group">
+                    <label for="datasetSize">Tamaño del dataset:</label>
+                    <input type="number" id="datasetSize" value="1000" min="100" max="100000">
+                    <small>Número de elementos a analizar</small>
+                </div>
+            `,
+            benchmark: `
+                <div class="form-group">
+                    <label for="duration">Duración (segundos):</label>
+                    <input type="number" id="duration" value="2" min="1" max="10">
+                    <small>Tiempo de ejecución del benchmark</small>
+                </div>
+            `
+        };
+
+        function updateTaskForm() {
+            const taskType = document.getElementById('taskType').value;
+            document.getElementById('taskParams').innerHTML = taskTemplates[taskType];
+        }
+
+        function connect() {
+            const url = document.getElementById('serverUrl').value;
+            addLog('info', `Conectando a ${url}...`);
+
+            try {
+                ws = new WebSocket(url);
+
+                ws.onopen = () => {
+                    updateStatus(true);
+                    addLog('info', '✅ Conectado al servidor');
+                };
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                };
+
+                ws.onerror = (error) => {
+                    addLog('error', `❌ Error: ${error.message || 'Error de conexión'}`);
+                };
+
+                ws.onclose = () => {
+                    updateStatus(false);
+                    addLog('info', '🔌 Desconectado del servidor');
+                };
+
+            } catch (error) {
+                addLog('error', `❌ Error al conectar: ${error.message}`);
+            }
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function updateStatus(connected) {
+            const statusEl = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+
+            if (connected) {
+                statusEl.className = 'status connected';
+                statusEl.textContent = '✅ Conectado';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                statusEl.className = 'status disconnected';
+                statusEl.textContent = '❌ Desconectado';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function submitJob() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('error', '❌ No hay conexión al servidor');
+                return;
+            }
+
+            const taskType = document.getElementById('taskType').value;
+            let taskData = {};
+
+            // Construir datos según tipo de tarea
+            switch (taskType) {
+                case 'calcular_fibonacci':
+                    taskData = { n: parseInt(document.getElementById('fibN').value) };
+                    break;
+                case 'procesar_imagen':
+                    taskData = { filename: document.getElementById('filename').value };
+                    break;
+                case 'analizar_datos':
+                    const size = parseInt(document.getElementById('datasetSize').value);
+                    taskData = { dataset: Array.from({length: size}, (_, i) => i) };
+                    break;
+                case 'benchmark':
+                    taskData = { duration: parseInt(document.getElementById('duration').value) };
+                    break;
+            }
+
+            const message = {
+                command: 'submit_job',
+                task_type: taskType,
+                data: taskData
+            };
+
+            ws.send(JSON.stringify(message));
+            stats.jobsSent++;
+            updateStatsDisplay();
+            addLog('sent', `📤 Job enviado: ${taskType}`, message);
+        }
+
+        function getStats() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('error', '❌ No hay conexión al servidor');
+                return;
+            }
+
+            ws.send(JSON.stringify({ command: 'get_stats' }));
+            addLog('sent', '📊 Solicitando estadísticas del servidor');
+        }
+
+        function handleMessage(data) {
+            addLog('received', `📥 Recibido: ${data.type}`, data);
+
+            switch (data.type) {
+                case 'connected':
+                    addLog('info', `🎉 ${data.message}`);
+                    break;
+
+                case 'job_submitted':
+                    addLog('info', `✅ Job ${data.job_id} encolado: ${data.task_type}`);
+                    break;
+
+                case 'job_completed':
+                    stats.jobsCompleted++;
+                    stats.totalDuration += data.duration;
+                    updateStatsDisplay();
+
+                    const resultHTML = `
+                        <div class="job-result">
+                            <strong>Job ${data.job_id} completado</strong><br>
+                            Worker: ${data.worker_id} |
+                            Duración: ${data.duration.toFixed(2)}s<br>
+                            Resultado: <pre>${JSON.stringify(data.result, null, 2)}</pre>
+                        </div>
+                    `;
+                    addLog('received', resultHTML);
+                    break;
+
+                case 'stats':
+                    stats.serverWorkers = data.workers;
+                    updateStatsDisplay();
+                    addLog('info', `📊 Stats del servidor: ${data.workers} workers, ${data.connected_clients} clientes`);
+                    break;
+
+                case 'pong':
+                    addLog('info', '🏓 Pong recibido');
+                    break;
+
+                case 'error':
+                    addLog('error', `❌ Error: ${data.message}`);
+                    break;
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('jobsSent').textContent = stats.jobsSent;
+            document.getElementById('jobsCompleted').textContent = stats.jobsCompleted;
+
+            const avgDuration = stats.jobsCompleted > 0
+                ? (stats.totalDuration / stats.jobsCompleted).toFixed(2)
+                : '0.00';
+            document.getElementById('avgDuration').textContent = avgDuration + 's';
+
+            document.getElementById('serverWorkers').textContent =
+                stats.serverWorkers || '-';
+        }
+
+        function addLog(type, message, data = null) {
+            const logEl = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+
+            let logHTML = `
+                <div class="log-entry ${type}">
+                    <span class="timestamp">[${timestamp}]</span> ${message}
+            `;
+
+            if (data) {
+                logHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+
+            logHTML += '</div>';
+
+            logEl.innerHTML += logHTML;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Inicializar formulario
+        updateTaskForm();
+
+        // Auto-conectar si está en localhost
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            setTimeout(connect, 500);
+        }
+    </script>
+</body>
+</html>

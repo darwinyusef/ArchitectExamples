@@ -1,0 +1,132 @@
+{
+  "name": "Integracion_Elevenlabs",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "8a52766d-b278-4cdd-8230-6f403c7f748f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        20
+      ],
+      "id": "07e86194-48c5-4056-a162-dc0a29780623",
+      "name": "Webhook",
+      "webhookId": "8a52766d-b278-4cdd-8230-6f403c7f748f"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## ROL\n- Escribe un email a un estudiante con la siguiente información sobre universidades:  {{ $json.body.informacion }}\n\n- El email debe ser genérico, sin mencionar el nombre del destinatario ni del remitente.\n\n## HERRAMIENTAS\n- Dispones de la herramienta \"EnviarEmail\" para enviar el email al destinatario",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        180,
+        20
+      ],
+      "id": "e4089fdc-cacb-43cf-b8f4-5e5f3d1552b1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        100,
+        220
+      ],
+      "id": "88dc1a4b-9c02-4d30-b614-5473ac669ee8",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.email }}",
+        "subject": "={{$fromAI('subject', 'el asunto del email')}}",
+        "message": "={{$fromAI('body', 'el cuerpo del email')}}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        580,
+        200
+      ],
+      "id": "ee208bf4-20d5-4734-b15e-8231962d753a",
+      "name": "EnviarEmail",
+      "webhookId": "00a8e323-a6ce-4121-920f-09606606c927",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8GmrMvcm2oaPqWSY",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EnviarEmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e4a97b00-27ac-4e15-b026-74b664c66ca2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "441974d4e0f72ec45c8b7dfa5e703be3b4cc1bd2f5d4b0f5cc7ce971159ca7cb"
+  },
+  "id": "SRantrVeM6fLKBng",
+  "tags": []
+}

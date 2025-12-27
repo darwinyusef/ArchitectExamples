@@ -1,0 +1,349 @@
+{
+  "name": "Obtener_Emails",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "68fa925b-ab27-481d-967e-53449d764ebc",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://www.google.com/maps/search/consultoria+tecnologica+mexico",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "4d066bba-6cdd-4dc0-a577-f59644efad77",
+      "name": "ObtenerElementosGoogleMaps"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "urls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "id": "842b8785-418c-4e1b-a274-3b088aeba497",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ec15c986-2924-4fc4-ad82-fa08cfba7957",
+              "leftValue": "={{ $json.urls }}",
+              "rightValue": "(google|gstatic|ggpht|schema|example)",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "f5f702fe-b92b-4c63-9cbd-274ee990ddbc",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.data;\nconst regex = /(https:\\/\\/[\\w-]+(\\.[\\w-]+)+)/g;\nconst urls = data.match(regex);\n\nreturn { urls };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        0
+      ],
+      "id": "f5331d0d-8544-4d02-9779-205c024019bf",
+      "name": "ObtenerURLs"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.urls }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1520,
+        60
+      ],
+      "id": "e9e8b90d-24ed-4fbe-9a27-1fdc9d0c5523",
+      "name": "ObtenerContenidoWeb"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all().map((item) => item.json.data);\nconst emailRegex = /\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b/g;\nconst emails = data.reduce((acc, curr) => {\n  const matches = curr.match(emailRegex);\n  if (matches) {\n    acc.push(...matches);\n  }\n  return acc;\n}, []);\n\nreturn { emails };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        60
+      ],
+      "id": "c40557df-e2b9-456f-a9a5-cff57bcb5f14",
+      "name": "ObtenerEmail"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "emails",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        -100
+      ],
+      "id": "6609fa83-c29d-4645-b155-803e792792f2",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        -100
+      ],
+      "id": "e2c5c558-3e97-4019-90b2-961e651c6a4d",
+      "name": "Eliminar Emails Duplicados"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ],
+      "id": "6213b4e4-84b7-4259-b76b-06c71d3ceda0",
+      "name": "Eliminar Webs Duplicadas"
+    },
+    {
+      "parameters": {
+        "batchSize": "=1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1240,
+        0
+      ],
+      "id": "b7c18ea6-8b7c-4f0d-bf8a-d6de8d7ea8c1",
+      "name": "Iterar Páginas"
+    },
+    {
+      "parameters": {
+        "content": "## Obtener Elementos Google Maps",
+        "height": 340,
+        "width": 260,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        120,
+        -120
+      ],
+      "id": "0ab38f37-c4f6-461b-addc-c4956b7b09ca",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Obtener URLs",
+        "height": 340,
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -120
+      ],
+      "id": "38c397d8-a7b8-45b0-9d56-46e90c9b0446",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Extracción Emails",
+        "height": 420,
+        "width": 820,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        -160
+      ],
+      "id": "d933fd6c-4c65-4d72-9cff-a6ed507ba2d8",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "ObtenerElementosGoogleMaps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenerElementosGoogleMaps": {
+      "main": [
+        [
+          {
+            "node": "ObtenerURLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Eliminar Webs Duplicadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenerURLs": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenerContenidoWeb": {
+      "main": [
+        [
+          {
+            "node": "ObtenerEmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenerEmail": {
+      "main": [
+        [
+          {
+            "node": "Iterar Páginas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Eliminar Emails Duplicados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eliminar Webs Duplicadas": {
+      "main": [
+        [
+          {
+            "node": "Iterar Páginas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iterar Páginas": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ObtenerContenidoWeb",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f2ae1506-5085-4c09-8802-21994ff44033",
+  "meta": {
+    "instanceId": "441974d4e0f72ec45c8b7dfa5e703be3b4cc1bd2f5d4b0f5cc7ce971159ca7cb"
+  },
+  "id": "Uijy6RDcSrGPPh6I",
+  "tags": []
+}

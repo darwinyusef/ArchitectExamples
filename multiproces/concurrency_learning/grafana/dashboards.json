@@ -1,0 +1,220 @@
+{
+  "dashboard": {
+    "title": "Python Concurrency - Complete Monitor",
+    "tags": ["python", "concurrency", "multiprocessing"],
+    "timezone": "browser",
+    "refresh": "5s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Race Conditions Detected",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(race_conditions_detected_total[1m])",
+            "legendFormat": "{{type}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Race Conditions/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Corrupted Data Instances",
+        "type": "singlestat",
+        "gridPos": {"x": 12, "y": 0, "w": 6, "h": 8},
+        "targets": [
+          {
+            "expr": "corrupted_data_instances",
+            "refId": "A"
+          }
+        ],
+        "thresholds": "0,1,10",
+        "colors": ["#299c46", "#e0b400", "#d44a3a"],
+        "valueName": "current"
+      },
+      {
+        "id": 3,
+        "title": "Lock Acquisitions by Type",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(lock_acquisitions_total[1m])",
+            "legendFormat": "{{lock_type}} - {{lock_name}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Acquisitions/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Lock Wait Time (P95)",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(lock_wait_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{lock_name}} P95",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(lock_wait_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{lock_name}} P99",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Wait Time"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Lock Contention (Threads Waiting)",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "lock_contention_threads",
+            "legendFormat": "{{lock_name}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Threads"},
+          {"format": "short"}
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [5], "type": "gt"},
+              "query": {"params": ["A", "5m", "now"]},
+              "type": "query"
+            }
+          ],
+          "name": "High Lock Contention",
+          "message": "More than 5 threads waiting for lock"
+        }
+      },
+      {
+        "id": 6,
+        "title": "Deadlocks Detected vs Prevented",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "increase(deadlocks_detected_total[5m])",
+            "legendFormat": "Detected",
+            "refId": "A"
+          },
+          {
+            "expr": "increase(deadlocks_prevented_total[5m])",
+            "legendFormat": "Prevented - {{strategy}}",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Count"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Lock Order Violations",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 24, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(lock_order_violations_total[1m])",
+            "legendFormat": "Violations/sec",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Violations/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Lock Timeout Failures",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 24, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(lock_timeout_failures_total[1m])",
+            "legendFormat": "Timeouts/sec",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Timeouts/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Concurrent Operation Duration",
+        "type": "heatmap",
+        "gridPos": {"x": 0, "y": 32, "w": 24, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(concurrent_operation_duration_seconds_bucket[5m])",
+            "legendFormat": "{{operation_type}}",
+            "refId": "A",
+            "format": "heatmap"
+          }
+        ],
+        "yAxis": {"format": "s"}
+      },
+      {
+        "id": 10,
+        "title": "System CPU Usage by Core",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 40, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "cpu_usage_per_core",
+            "legendFormat": "{{core}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "CPU %", "max": 100},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Memory Usage",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 40, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "memory_usage_percent",
+            "legendFormat": "Memory Usage",
+            "refId": "A"
+          },
+          {
+            "expr": "memory_used_mb",
+            "legendFormat": "Used MB",
+            "refId": "B",
+            "yAxisIndex": 1
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "Memory %"},
+          {"format": "decmbytes", "label": "MB"}
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "name": "Ecom_Agente",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        -20
+      ],
+      "id": "8aa2739b-48fe-415e-a8d7-8a94c167b308",
+      "name": "When chat message received",
+      "webhookId": "11e33d45-dc7b-4564-be24-235141dda903"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=#Rol\nEres un asistente capaz de contestar preguntas del usuario basándote en información sobre el Ecommerce\n\n#Tareas\n- Tu función principal es responder a este mensaje {{ $json.chatInput }}\n\n- Utiliza información de la herramienta ListaProductos para consultas sobre productos del Ecommerce\n\n- Utiliza información de la herramienta Documentos_Ecommerce para cualquier consulta relacionada con el funcionamiento del Ecommerce\n\n#Notas\n- Tus respuestas deben ser claras y concisas, no debes exceder los 200 caracteres\n- Si el cliente decide comprar el producto puedes pasarle el enlace para que pague. El enlace es https://ivanalsigo.com y debe ir siempre en un hipervinculo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        60,
+        -20
+      ],
+      "id": "1038ec8e-4a8b-4802-8420-cd7307a3f232",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -120,
+        180
+      ],
+      "id": "e5f62466-8e18-4f55-8e89-ee80cf18eca3",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "I0JGHRe0IK4lwZR3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        60,
+        180
+      ],
+      "id": "1a03f274-f3c1-4983-a669-7ffa7fee417e",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        280
+      ],
+      "id": "c5730105-db72-44bf-b2dd-ad798532d0d6",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "I0JGHRe0IK4lwZR3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "ecom",
+          "mode": "list",
+          "cachedResultName": "ecom"
+        },
+        "options": {
+          "pineconeNamespace": "name_ecom"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ],
+      "id": "deff4fa8-6812-46d2-9976-cd46a7957226",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "t5R5sDYBwSFtSGCo",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        340,
+        440
+      ],
+      "id": "cb920c57-6a24-4734-aaa0-d44c8964eb4d",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "I0JGHRe0IK4lwZR3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1QLxvOldIuIGnBgm8ZbHNpTid-ercBp-hmPZ3zWH0_Sg",
+          "mode": "list",
+          "cachedResultName": "Productos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QLxvOldIuIGnBgm8ZbHNpTid-ercBp-hmPZ3zWH0_Sg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QLxvOldIuIGnBgm8ZbHNpTid-ercBp-hmPZ3zWH0_Sg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        380,
+        160
+      ],
+      "id": "5c1e9b36-a726-48dd-9de7-c4e8c30a9684",
+      "name": "ListaProductos",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "M4NvdeS4TFxPujrT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Ecommerce",
+        "description": "Esta herramienta va a dar información sobre el funcionamiento del Ecommerce"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        520,
+        140
+      ],
+      "id": "cf3ead65-bdd5-4cc8-b18f-1570d940fb56",
+      "name": "Documentos_Ecommerce"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Documentos_Ecommerce",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Documentos_Ecommerce",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ListaProductos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Documentos_Ecommerce": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5448bee3-0634-40d7-824e-4107181afc46",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e4fdb4e0168a7f4d35dba69787a6a0f975f7036521581508c5244ad600860eff"
+  },
+  "id": "r3LXFRrfWLAY5v2Z",
+  "tags": []
+}

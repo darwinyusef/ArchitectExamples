@@ -1,0 +1,786 @@
+{
+  "name": "Ecom_Agente_TelegramVoice",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=#Rol\nEres un asistente capaz de contestar preguntas del usuario basándote en información sobre el Ecommerce\n\n#Tareas\n- Tu función principal es responder a este mensaje {{ $json.text }}\n\n- Utiliza información de la herramienta ListaProductos para consultas sobre productos del Ecommerce\n\n- Utiliza información de la herramienta Documentos_Ecommerce para cualquier consulta relacionada con el funcionamiento del Ecommerce\n\n#Notas\n- Tus respuestas deben ser claras y concisas, no debes exceder los 200 caracteres\n- Si el cliente decide comprar el producto puedes pasarle el enlace para que pague. El enlace es https://ivanalsigo.com y debe ir siempre en un hipervinculo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        140,
+        -20
+      ],
+      "id": "4aca7843-f3fc-4a8e-979a-0f62a0a289c2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -40,
+        140
+      ],
+      "id": "8ce1e1f8-bcef-41aa-b5db-95009d2879c4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        100,
+        160
+      ],
+      "id": "4c749052-bda3-4cc8-b11b-cea86e0f2b9b",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        540,
+        280
+      ],
+      "id": "7ab95604-0768-41ba-8cdb-b4db78c43a97",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "ecomagent",
+          "mode": "list",
+          "cachedResultName": "ecomagent"
+        },
+        "options": {
+          "pineconeNamespace": "name_ecom"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        220,
+        300
+      ],
+      "id": "d08d11fe-7b77-4d7f-afc7-6b48c3163296",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "Bp3WJC7CHvgDURvo",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        440
+      ],
+      "id": "8f801842-c64b-42ef-a4f7-7511738769e0",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1QLxvOldIuIGnBgm8ZbHNpTid-ercBp-hmPZ3zWH0_Sg",
+          "mode": "list",
+          "cachedResultName": "Productos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QLxvOldIuIGnBgm8ZbHNpTid-ercBp-hmPZ3zWH0_Sg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QLxvOldIuIGnBgm8ZbHNpTid-ercBp-hmPZ3zWH0_Sg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        160
+      ],
+      "id": "11c13d5e-6267-43f2-aa9e-1b7340f7c570",
+      "name": "ListaProductos",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WaDJTKBFfBkiHuSs",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Ecommerce",
+        "description": "Esta herramienta va a dar información sobre el funcionamiento del Ecommerce"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        340,
+        140
+      ],
+      "id": "5772ffe5-c713-4a27-8139-5456bef6dc29",
+      "name": "Documentos_Ecommerce"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1140,
+        0
+      ],
+      "id": "84cdbe3a-5ead-4855-85b9-e04a47d60192",
+      "name": "Telegram Trigger",
+      "webhookId": "9cc3e066-f187-427a-a5d5-cb7b19e60a74",
+      "credentials": {
+        "telegramApi": {
+          "id": "m7Xy3xzc9mTOb27b",
+          "name": "Telegram_EcomVoice"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notExists",
+                      "singleValue": true
+                    },
+                    "id": "dcaa63b1-4c88-479d-af31-447b1d7e5ebc"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e013fc8e-4a9e-4cf5-bf92-7745fa9a8684",
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -820,
+        0
+      ],
+      "id": "fba316ab-ede7-4763-b5a1-1301a4821249",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "content": "## AI Agent Ecom",
+        "height": 620,
+        "width": 740
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -60
+      ],
+      "id": "7316720a-e570-4c34-9250-99d3b952f3d2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Process Audio",
+        "height": 240,
+        "width": 500,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        200
+      ],
+      "id": "c54002e1-2764-47b3-bd06-dd5d4c99c697",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Receive Message",
+        "height": 240,
+        "width": 480,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1160,
+        -60
+      ],
+      "id": "f14f3b78-5d71-4b60-bee8-212e8650c1e2",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -580,
+        280
+      ],
+      "id": "632b5c3b-7f4b-4657-96d8-46543853eb4c",
+      "name": "DownloadAudio",
+      "webhookId": "0fd3b1cb-7f71-4982-8213-979d01fb3835",
+      "credentials": {
+        "telegramApi": {
+          "id": "m7Xy3xzc9mTOb27b",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -420,
+        280
+      ],
+      "id": "11468e64-5829-42fc-b292-7cd5430831c0",
+      "name": "AudioToText",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ad075e7a-a4f4-45aa-8bd8-ce1410614241",
+              "name": "text",
+              "value": "={{ $('Telegram Trigger').item.json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -440,
+        -20
+      ],
+      "id": "6dc43013-ac82-425c-abce-3651b04339c3",
+      "name": "PromptText"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0f04b248-42c7-43d4-a8a2-96ec77754fbe",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -260,
+        280
+      ],
+      "id": "c4d4ac8f-1d34-432e-aac8-68464bb49066",
+      "name": "PromptAudio"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notExists",
+                      "singleValue": true
+                    },
+                    "id": "65f0bbb1-1977-43bb-88f7-6dfec91a7430"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Response Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "55b05ca4-83ca-4120-acfc-f1a30b5b5bc4",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Response Audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        760,
+        40
+      ],
+      "id": "dd907c1f-3212-48e0-9f05-fe021ec6e656",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $('AI Agent').item.json.output }}",
+        "options": {
+          "response_format": "opus"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1000,
+        180
+      ],
+      "id": "d60c6a97-65c3-42c8-b984-ced44199a73c",
+      "name": "GenerateAudio",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {
+          "fileName": "response_agent_opus",
+          "reply_to_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1220,
+        180
+      ],
+      "id": "e4cd23c0-c1a9-45ff-ac5a-f5c22bdd365e",
+      "name": "Telegram",
+      "webhookId": "e03ba4a4-ef63-4f2c-b823-4e796b6cee95",
+      "credentials": {
+        "telegramApi": {
+          "id": "m7Xy3xzc9mTOb27b",
+          "name": "Telegram_EcomVoice"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        -20
+      ],
+      "id": "052128ec-a9e4-4a53-81da-5119d3c63fbd",
+      "name": "Telegram1",
+      "webhookId": "daa1d02d-3f57-4369-9dcd-b04799eef5fc",
+      "credentials": {
+        "telegramApi": {
+          "id": "m7Xy3xzc9mTOb27b",
+          "name": "Telegram_EcomVoice"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Response Telegram",
+        "height": 420,
+        "width": 660,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -60
+      ],
+      "id": "d738b1e7-9624-4ffe-9f19-8382fa5b6639",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "Un momento por favor, estoy procesando tu mensaje",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.message.message_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -980,
+        0
+      ],
+      "id": "d2847b37-86f9-4587-a91d-90ba0e8a8b29",
+      "name": "Wait_Message",
+      "webhookId": "6b8a8f3b-fe0f-4762-868e-774d74c1711f",
+      "credentials": {
+        "telegramApi": {
+          "id": "m7Xy3xzc9mTOb27b",
+          "name": "Telegram_EcomVoice"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Documentos_Ecommerce",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Documentos_Ecommerce",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ListaProductos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Documentos_Ecommerce": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Wait_Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "PromptText",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DownloadAudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DownloadAudio": {
+      "main": [
+        [
+          {
+            "node": "AudioToText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AudioToText": {
+      "main": [
+        [
+          {
+            "node": "PromptAudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PromptText": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PromptAudio": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GenerateAudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GenerateAudio": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait_Message": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5845b4fc-e31d-43eb-a8d4-668827b097f7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "441974d4e0f72ec45c8b7dfa5e703be3b4cc1bd2f5d4b0f5cc7ce971159ca7cb"
+  },
+  "id": "gYUXik3kumWrvDg1",
+  "tags": []
+}

@@ -1,0 +1,305 @@
+{
+  "name": "Lovable_Scraping_Cursos",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.body.URL }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "bfcbffce-4644-4548-b823-091d0efe1bac",
+      "name": "ObtenerCursos"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "ca07ee0e-d14a-4ff8-9b7a-e471b19e66d2",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Eres un asistente encargado de analizar contenido en formato Markdown proveniente de una página web de cursos.",
+              "role": "system"
+            },
+            {
+              "content": "=Tu tarea es extraer:\n1. Un breve resumen en una línea que describa el propósito general o temática de la web.\n2. Una lista de todos los cursos con su TÍTULO, DESCRIPCIÓN y su URL.\n\nDevuelve exclusivamente un objeto JSON con el siguiente formato (sin texto adicional, solo JSON válido):\n{\n  \"ResumenWeb\": \"un breve resumen en una línea de qué trata la página web\",\n  \"ListadoCursos\": [\n    {\n      \"Titulo\": \"TituloCurso1\",\n      \"Descripcion\": \"DescripcionCurso1\",\n      \"URL\": \"https://ejemplo.com/curso1\"\n    },\n    {\n      \"Titulo\": \"TituloCurso2\",\n      \"Descripcion\": \"DescripcionCurso2\",\n      \"URL\": \"https://ejemplo.com/curso2\"\n    },\n    {\n      \"Titulo\": \"TituloCurso3\",\n      \"Descripcion\": \"DescripcionCurso3\",\n      \"URL\": \"https://ejemplo.com/curso3\"\n    },\n    {\n      \"Titulo\": \"TituloCurso4\",\n      \"Descripcion\": \"DescripcionCurso4\",\n      \"URL\": \"https://ejemplo.com/curso4\"\n    }\n  ]\n}"
+            },
+            {
+              "content": "={{ $json.data }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        660,
+        0
+      ],
+      "id": "c48d36d0-5677-42c7-bbe0-f1b04c0d0a97",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "message.content.ListadoCursos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        0
+      ],
+      "id": "2ba9b6ec-d8af-4e4c-92ab-ab69786e6918",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Q9HEBtO_KCkgMf6kD6watTWfFxW7AI621AogE7-9L4s",
+          "mode": "list",
+          "cachedResultName": "Cursos_IvanAlsiGo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Q9HEBtO_KCkgMf6kD6watTWfFxW7AI621AogE7-9L4s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Q9HEBtO_KCkgMf6kD6watTWfFxW7AI621AogE7-9L4s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TítuloCurso": "={{ $json.Titulo }}",
+            "DescripcionCurso": "={{ $json.Descripcion }}",
+            "URL": "={{ $json.URL }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "TítuloCurso",
+              "displayName": "TítuloCurso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DescripcionCurso",
+              "displayName": "DescripcionCurso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1240,
+        0
+      ],
+      "id": "95b39d04-29a6-4647-9615-48e1ae5b6b2f",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WaDJTKBFfBkiHuSs",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Extraer y Formatear Información",
+        "height": 340,
+        "width": 780,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -100
+      ],
+      "id": "1ca3c18b-dc79-40e2-90a2-4a6ae0243a01",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Insertar Elementos en Base de Datos",
+        "height": 340,
+        "width": 520,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -100
+      ],
+      "id": "4b965e7d-21fc-4ebc-ad19-798bfed22709",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0e297e70-3cf5-48e5-a458-9f040840cf27",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        0
+      ],
+      "id": "fa760cd6-cf78-45e5-b25c-ccb85e3aa699",
+      "name": "Webhook",
+      "webhookId": "0e297e70-3cf5-48e5-a458-9f040840cf27"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"respuesta\": \"los datos se han agregado correctamente a la tabla\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1460,
+        0
+      ],
+      "id": "6791c357-0b76-4957-b2f1-b4e93d175cd1",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "ObtenerCursos": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "ObtenerCursos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "49e1ed81-271d-47c5-a702-b64458318a11",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "441974d4e0f72ec45c8b7dfa5e703be3b4cc1bd2f5d4b0f5cc7ce971159ca7cb"
+  },
+  "id": "q1jZykkcndPQEjYl",
+  "tags": []
+}

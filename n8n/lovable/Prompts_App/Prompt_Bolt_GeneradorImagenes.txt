@@ -1,0 +1,12 @@
+Quiero crear un generador de imágenes. La página debe tener un estilo llamativo y profesional.
+
+Los elementos de la página serán:
+- Cuadro de texto. Aquí el usuario va a introducir el prompt que enviará a n8n a través del endpoint: [URL_ENDPOINT]
+- Botón con texto "Generar Imagen". Este botón va a realizar una llamada HTTP POST hacia un webhook de n8n.
+
+Un ejemplo del cuerpo de la solicitud será:
+{ 
+"prompt": "Crea una imagen de un perro viajando hacia la luna con gafas de sol" 
+}
+
+El webhook de n8n te devuelve la respuesta con un binario que deberás procesar para poder mostrar la imagen por pantalla

@@ -1,0 +1,206 @@
+{
+  "name": "IntegracionVapi_CentroBienestar",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "45290b60-d49f-4068-9f26-6987c7c125ff",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "0184db63-e056-4b50-b6e7-2abbc8401d49",
+      "name": "Webhook",
+      "webhookId": "45290b60-d49f-4068-9f26-6987c7c125ff"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=#Rol\nEres un asistente capaz de contestar preguntas sobre los servicios ofrecidos por un centro de bienestar.\n\n#Herramientas\n- Utiliza información de la herramienta 'ListaServicios' para responder consultas sobre los servicios disponibles en el centro de bienestar. La consulta del cliente es: {{ $json.body.message.toolCalls[0].function.arguments.servicios_bienestar }}\n- Utiliza la herramienta 'EnviarEmail' para enviarle al cliente todos los detalles del servicio que le interesa y el link para reservarlo. El correo que escribirás debe tener el máximo detalle posible sobre los servicios y estar muy bien estructurado, redactado con un tono profesional y amable. El email del cliente es: {{ $json.body.message.toolCalls[0].function.arguments.email }}\n\n#Notas\n- Tus respuestas deben ser claras y concisas, no debes exceder los 200 caracteres.\n\n#Importante\n- Responde con máximo 200 carácteres y en una sola frase, sin saltos de línea, sin dobles comillas y sin carácteres especiales.\n- Solo debes facilitar el link de reserva al usuario cuando hagas uso de la herramienta 'EnviarEmail'\n- Evita pedir cada vez el email al cliente. Solo le vas a pedir el email al final de la conversación, cuando ya hayas respondido a todas las preguntas del cliente y el cliente haya decidido qué información quiere que le mandes por email.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        220,
+        0
+      ],
+      "id": "53f0c6f5-15f7-4a43-abef-1cf3a093f82d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        220
+      ],
+      "id": "c388ec56-a9c2-4b27-b7ee-6b143c209503",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.message.toolCallList[0].function.arguments.email }}",
+        "subject": "={{ $fromAI('subject', 'el asunto del email') }}",
+        "message": "={{ $fromAI('body', 'el cuerpo del email') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        500,
+        280
+      ],
+      "id": "23535ef4-e9b3-41f7-adbb-56b439e9b4cc",
+      "name": "EnviarEmail",
+      "webhookId": "4c9c3c2b-31c3-4f4f-9202-bdb7e76fbaaa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8GmrMvcm2oaPqWSY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Llama a este módulo para encontrar información sobre los servicios del centro de bienestar",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appt3DflnEnQ2rFph",
+          "mode": "list",
+          "cachedResultName": "Centro_Bienestar",
+          "cachedResultUrl": "https://airtable.com/appt3DflnEnQ2rFph"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl20zkocgV5ORKNM",
+          "mode": "list",
+          "cachedResultName": "Servicios",
+          "cachedResultUrl": "https://airtable.com/appt3DflnEnQ2rFph/tbl20zkocgV5ORKNM"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        660,
+        280
+      ],
+      "id": "79aba04a-9e75-41f4-8524-91e157d449fb",
+      "name": "ListaServicios",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "S91DRU0IxI6kIZjm",
+          "name": "Airtable Token CentroBienestar"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\": [\n        {\n            \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\",\n            \"result\": \"{{ $json.output }}\"\n        }\n    ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        680,
+        0
+      ],
+      "id": "3f4336ad-9dc4-49eb-a1b9-671614940e51",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EnviarEmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ListaServicios": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5cd9befa-a04e-43b1-93b5-328b2d951369",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "441974d4e0f72ec45c8b7dfa5e703be3b4cc1bd2f5d4b0f5cc7ce971159ca7cb"
+  },
+  "id": "hZhe2aL7IhCOPFxK",
+  "tags": []
+}

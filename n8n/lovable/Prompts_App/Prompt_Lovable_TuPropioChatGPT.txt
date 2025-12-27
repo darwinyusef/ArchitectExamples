@@ -1,0 +1,15 @@
+Quiero crear mi propio chatgpt. La página debe tener un estilo llamativo y profesional.
+
+Los elementos de la página serán:
+- Cuadro de texto. Aquí el usuario va a introducir el prompt que enviará a n8n a través del endpoint: [URL_ENDPOINT]
+- Botón con texto "Ejecutar Consulta". Este botón va a realizar una llamada HTTP POST hacia un webhook de n8n.
+
+Un ejemplo del cuerpo de la solicitud será:
+{
+"prompt": "¿Quién es Michael Jordan?"
+}
+
+El webhook de n8n te devuelve la respuesta con el siguiente JSON que debes capturar y mostrar por pantalla en la respuesta de cada consulta que haga el usuario:
+{
+"respuesta": "Este es un ejemplo de respuesta"
+}

@@ -1,0 +1,273 @@
+{
+  "name": "Scraping_Cursos",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "900d4f2b-d7cc-47f1-99bd-46146ad1f8e9",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://cursos.ivanalsigo.com",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "ebceb6e8-ad94-438e-8b39-fc92bf923c32",
+      "name": "ObtenerCursos"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "40a1347c-6f14-4ebc-bc8b-fe16880f466c",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Eres un asistente encargado de analizar contenido en formato Markdown proveniente de una página web de cursos.",
+              "role": "system"
+            },
+            {
+              "content": "=Tu tarea es extraer:\n1. Un breve resumen en una línea que describa el propósito general o temática de la web.\n2. Una lista de todos los cursos con su TÍTULO, DESCRIPCIÓN y su URL.\n\nDevuelve exclusivamente un objeto JSON con el siguiente formato (sin texto adicional, solo JSON válido):\n{\n  \"ResumenWeb\": \"un breve resumen en una línea de qué trata la página web\",\n  \"ListadoCursos\": [\n    {\n      \"Titulo\": \"TituloCurso1\",\n      \"Descripcion\": \"DescripcionCurso1\",\n      \"URL\": \"https://ejemplo.com/curso1\"\n    },\n    {\n      \"Titulo\": \"TituloCurso2\",\n      \"Descripcion\": \"DescripcionCurso2\",\n      \"URL\": \"https://ejemplo.com/curso2\"\n    },\n    {\n      \"Titulo\": \"TituloCurso3\",\n      \"Descripcion\": \"DescripcionCurso3\",\n      \"URL\": \"https://ejemplo.com/curso3\"\n    },\n    {\n      \"Titulo\": \"TituloCurso4\",\n      \"Descripcion\": \"DescripcionCurso4\",\n      \"URL\": \"https://ejemplo.com/curso4\"\n    }\n  ]\n}"
+            },
+            {
+              "content": "={{ $json.data }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        660,
+        0
+      ],
+      "id": "a1cb1777-6923-4ff0-aeb8-527a1bc9492a",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "message.content.ListadoCursos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        0
+      ],
+      "id": "d77a84a4-adf3-4b7c-a90e-4dde16371874",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Q9HEBtO_KCkgMf6kD6watTWfFxW7AI621AogE7-9L4s",
+          "mode": "list",
+          "cachedResultName": "Cursos_IvanAlsiGo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Q9HEBtO_KCkgMf6kD6watTWfFxW7AI621AogE7-9L4s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Q9HEBtO_KCkgMf6kD6watTWfFxW7AI621AogE7-9L4s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TítuloCurso": "={{ $json.Titulo }}",
+            "DescripcionCurso": "={{ $json.Descripcion }}",
+            "URL": "={{ $json.URL }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "TítuloCurso",
+              "displayName": "TítuloCurso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DescripcionCurso",
+              "displayName": "DescripcionCurso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1240,
+        0
+      ],
+      "id": "0d7ceb87-f186-4950-a9ef-ca1caac7e7ce",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WaDJTKBFfBkiHuSs",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Extraer y Formatear Información",
+        "height": 340,
+        "width": 780,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -100
+      ],
+      "id": "29b61315-6885-4860-b630-c0191eb51121",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Insertar Elementos en Base de Datos",
+        "height": 340,
+        "width": 520,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -100
+      ],
+      "id": "632b60fe-b824-47c4-b6b9-1d356c0ae7a7",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "ObtenerCursos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenerCursos": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c9c418b5-4242-497f-8721-8179ff58cb95",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "441974d4e0f72ec45c8b7dfa5e703be3b4cc1bd2f5d4b0f5cc7ce971159ca7cb"
+  },
+  "id": "Utfq58YYfzm4D7hI",
+  "tags": []
+}

@@ -1,0 +1,21 @@
+Quiero crear un generador de historias contadas en 30 palabras y que incluyan el nombre, el animal y el deporte que indique el usuario. La página debe tener un estilo llamativo y profesional.
+
+Los elementos de la página serán:
+- Cuadro de Texto con etiqueta "Nombre". El usuario deberá poder introducir un nombre de persona en el cuadro de texto.
+- Cuadro de Texto con etiqueta "Animal". El usuario deberá poder introducir un nombre de un animal en el cuadro de texto.
+- Cuadro de Texto con etiqueta "Deporte". El usuario deberá poder introducir el nombre de su deporte favorito.
+- Botón "Crear Historia". Cuando el usuario pulse el botón "Crear Historia" los tres parámetros se enviarán a un webhook de n8n a través del endpoint: [URL_ENDPOINT]
+
+Este botón va a realizar una llamada HTTP POST hacia un webhook de n8n. Un ejemplo del cuerpo de la solicitud será:
+{ "nombre": "Ivan",
+"animal": "cocodrilo",
+"deporte": "golf" }
+
+Una vez que se haya realizado la petición POST al webhook de n8n deberás mostrar por pantalla dos botones:
+- Un botón “crear nueva historia” que envíe al usuario a la página principal que le permita volver a crear una historia.
+- Y otro botón “ver historia” que le permita al usuario ver la historia que se ha generado en n8n.
+
+Recuerda que el webhook de n8n te devuelve la respuesta con el siguiente JSON:
+{ 
+"respuesta": "historia generada"
+}

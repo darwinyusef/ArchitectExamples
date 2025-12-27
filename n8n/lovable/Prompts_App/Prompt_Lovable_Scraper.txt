@@ -1,0 +1,17 @@
+Quiero crear una página que permita al usuario obtener datos de lo que necesite a través de n8n. En un formulario el usuario va a introducir la URL que desea scrapear. La página debe tener un estilo llamativo y profesional.
+
+Los elementos de la página serán:
+- Cuadro de Texto con etiqueta "URL del Contenido a Extraer". El usuario deberá poder introducir la URL que quiera scrapear
+- Botón "Obtener Datos". Cuando el usuario pulse el botón "Obtener Datos" la URL se enviará a un webhook de n8n a través del endpoint: [URL_ENDPOINT]
+
+Este botón va a realizar una llamada HTTP POST hacia un webhook de n8n. Un ejemplo del cuerpo de la solicitud será:
+{
+ "URL": "url de la página a scrapear" 
+}
+
+Una vez que se haya realizado la petición POST al webhook de n8n y todo haya funcionado correctamente, deberás mostrar por pantalla el mensaje “los datos se han agregado correctamente a la tabla”:
+
+Recuerda que el webhook de n8n te devuelve la respuesta con el siguiente JSON:
+{
+ "respuesta": "Los datos se han agregado correctamente a la tabla"
+ }

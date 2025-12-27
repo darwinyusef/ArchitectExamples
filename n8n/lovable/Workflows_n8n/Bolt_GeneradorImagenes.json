@@ -1,0 +1,93 @@
+{
+  "name": "Bolt_GeneradorImagenes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "47c53930-2d1d-4705-b727-befe937e88da",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        0
+      ],
+      "id": "ac45fa17-ad74-4d36-861b-93e8abc36975",
+      "name": "Webhook",
+      "webhookId": "47c53930-2d1d-4705-b727-befe937e88da"
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        0
+      ],
+      "id": "871a7c76-a237-4d7b-b11d-3b8569803608",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $json.body.prompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        120,
+        0
+      ],
+      "id": "ac3b5509-0ffd-42a7-bd35-28917d70851d",
+      "name": "GenerarImagen",
+      "credentials": {
+        "openAiApi": {
+          "id": "UdTbev0DIFV1AlM7",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "GenerarImagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GenerarImagen": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "865d5088-f632-45dc-919d-c2dfd94481da",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "441974d4e0f72ec45c8b7dfa5e703be3b4cc1bd2f5d4b0f5cc7ce971159ca7cb"
+  },
+  "id": "YywfkX7YG6oUDALa",
+  "tags": []
+}

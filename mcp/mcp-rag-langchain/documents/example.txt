@@ -1,0 +1,41 @@
+Documento de ejemplo para el sistema RAG
+
+Este es un documento de ejemplo que contiene información sobre FastMCP y sistemas RAG.
+
+FastMCP es un framework para crear servidores MCP (Model Context Protocol) de manera rápida y sencilla.
+Permite definir herramientas y recursos que pueden ser utilizados por modelos de lenguaje.
+
+Los sistemas RAG (Retrieval Augmented Generation) combinan la búsqueda de información relevante
+con la generación de texto mediante modelos de lenguaje. Esto permite que los LLMs accedan a
+información específica y actualizada que no estaba en sus datos de entrenamiento.
+
+Componentes principales de un sistema RAG:
+
+1. Embeddings: Representaciones vectoriales del texto que capturan el significado semántico.
+   Los modelos como sentence-transformers convierten texto en vectores densos.
+
+2. Vector Store: Base de datos optimizada para búsqueda por similitud vectorial.
+   ChromaDB es una opción popular y fácil de usar para proyectos de RAG.
+
+3. Retriever: Componente que busca los documentos más relevantes dado un query.
+   Utiliza similitud coseno u otras métricas para encontrar los mejores matches.
+
+4. LLM: Modelo de lenguaje que genera la respuesta final utilizando el contexto recuperado.
+   Ollama permite ejecutar modelos como Llama 2, Mistral, etc. de forma local y gratuita.
+
+5. Chain: Orquesta el proceso completo desde el query hasta la respuesta.
+   LangChain proporciona abstracciones para construir estas cadenas fácilmente.
+
+Ventajas de usar RAG:
+- Información actualizada sin reentrenar el modelo
+- Respuestas basadas en fuentes verificables
+- Menor alucinación del modelo
+- Control sobre el conocimiento utilizado
+- Posibilidad de citar fuentes
+
+Casos de uso comunes:
+- Sistemas de preguntas y respuestas sobre documentación
+- Chatbots empresariales con conocimiento específico
+- Asistentes para búsqueda en bases de conocimiento
+- Análisis de documentos legales o técnicos
+- Soporte al cliente con acceso a manuales y FAQs

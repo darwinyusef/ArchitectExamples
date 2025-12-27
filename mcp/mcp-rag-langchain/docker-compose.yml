@@ -1,0 +1,26 @@
+version: '3.8'
+
+# Este docker-compose es opcional ya que usamos OpenAI (cloud)
+# Solo lo necesitas si quieres servicios adicionales
+
+services:
+  # Opcional: PostgreSQL para almacenar metadata
+  postgres:
+    image: postgres:16-alpine
+    container_name: rag-postgres
+    environment:
+      POSTGRES_DB: rag_metadata
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: rag
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

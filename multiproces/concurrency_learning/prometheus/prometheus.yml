@@ -1,0 +1,105 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  external_labels:
+    monitor: 'python-concurrency-monitor'
+    environment: 'production'
+
+# Configuración de Alertmanager
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Reglas de alertas
+rule_files:
+  - 'alerts.yml'
+
+# Configuración de scraping
+scrape_configs:
+  # ============================================================================
+  # Prometheus se monitorea a sí mismo
+  # ============================================================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: 'prometheus-server'
+
+  # ============================================================================
+  # Métricas del sistema (CPU, memoria, disco)
+  # ============================================================================
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'droplet-system'
+          type: 'system'
+
+  # ============================================================================
+  # Aplicaciones Python - Race Conditions
+  # ============================================================================
+  - job_name: 'race_conditions'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+        labels:
+          module: 'race_conditions'
+          app: 'python_concurrency'
+          language: 'python'
+    metrics_path: '/metrics'
+    scrape_interval: 2s  # Más frecuente para detectar race conditions rápido
+
+  # ============================================================================
+  # Aplicaciones Python - Locks y Mutex
+  # ============================================================================
+  - job_name: 'locks'
+    static_configs:
+      - targets: ['host.docker.internal:8001']
+        labels:
+          module: 'locks'
+          app: 'python_concurrency'
+          language: 'python'
+    metrics_path: '/metrics'
+    scrape_interval: 2s
+
+  # ============================================================================
+  # Aplicaciones Python - Deadlocks
+  # ============================================================================
+  - job_name: 'deadlocks'
+    static_configs:
+      - targets: ['host.docker.internal:8002']
+        labels:
+          module: 'deadlocks'
+          app: 'python_concurrency'
+          language: 'python'
+    metrics_path: '/metrics'
+    scrape_interval: 2s
+
+  # ============================================================================
+  # Monitor de CPU y Sistema
+  # ============================================================================
+  - job_name: 'cpu_monitor'
+    static_configs:
+      - targets: ['host.docker.internal:8003']
+        labels:
+          module: 'monitoring'
+          app: 'python_concurrency'
+          language: 'python'
+          type: 'cpu_monitor'
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # ============================================================================
+  # WebSocket Server (si está corriendo)
+  # ============================================================================
+  - job_name: 'websocket_server'
+    static_configs:
+      - targets: ['host.docker.internal:8765']
+        labels:
+          module: 'websockets'
+          app: 'python_concurrency'
+          language: 'python'
+          type: 'websocket'
+    metrics_path: '/metrics'
+    scrape_interval: 5s

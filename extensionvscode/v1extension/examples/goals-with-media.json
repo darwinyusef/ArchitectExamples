@@ -1,0 +1,94 @@
+{
+  "goals": [
+    {
+      "id": "learn-react",
+      "title": "Learn React Basics",
+      "description": "Master the fundamentals of React development",
+      "week": "Semana 1",
+      "date": "2025-01-01",
+      "documentation": "# Learn React Basics\n\n## Overview\nReact is a JavaScript library for building user interfaces.\n\n## Tutorial Video\n[youtube](dQw4w9WgXcQ)\n\n## React Logo\n![React Logo](https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg)\n\n## Key Concepts\n- **Components**: Building blocks of React apps\n- **JSX**: JavaScript XML syntax\n- **Props**: Data passed to components\n- **State**: Component data that changes\n\n## Learn More\nVisit the [Official React Docs](https://react.dev) for more information.",
+      "tasks": [
+        {
+          "id": "react-1",
+          "description": "Create a functional component that displays 'Hello World'",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "react-2",
+          "description": "Add a useState hook to manage a counter",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "react-3",
+          "description": "Create a button that increments the counter onClick",
+          "code": "",
+          "status": "pending"
+        }
+      ],
+      "status": "pending",
+      "currentTaskIndex": 0
+    },
+    {
+      "id": "python-basics",
+      "title": "Python Programming Basics",
+      "description": "Learn fundamental Python programming concepts",
+      "week": "Semana 2",
+      "date": "2025-01-08",
+      "documentation": "# Python Programming\n\n## What is Python?\nPython is a high-level, interpreted programming language.\n\n![Python Logo](https://www.python.org/static/community_logos/python-logo-master-v3-TM.png)\n\n## Video Tutorial\n[youtube](https://www.youtube.com/watch?v=kqtD5dpn9C8)\n\n## Core Features\n- Easy to learn syntax\n- Dynamic typing\n- Extensive standard library\n- Great for beginners\n\n## Example Code\n```python\ndef greet(name):\n    return f\"Hello, {name}!\"\n```",
+      "tasks": [
+        {
+          "id": "py-1",
+          "description": "Create a function that adds two numbers",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "py-2",
+          "description": "Create a list and iterate over it with a for loop",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "py-3",
+          "description": "Create a dictionary and access its values",
+          "code": "",
+          "status": "pending"
+        }
+      ],
+      "status": "pending",
+      "currentTaskIndex": 0
+    },
+    {
+      "id": "git-workflow",
+      "title": "Git Workflow Mastery",
+      "description": "Master Git version control system",
+      "week": "Semana 3",
+      "date": "2025-01-15",
+      "documentation": "# Git Workflow\n\n## Introduction\nGit is a distributed version control system.\n\n## Visual Guide\n![Git Workflow](https://miro.medium.com/v2/resize:fit:1400/1*iL2J8k4ygQlg3xriKGimbQ.png)\n\n## Git Tutorial\n[youtube](z0vY6UgJ_Ws)\n\n## Essential Commands\n- `git init` - Initialize repository\n- `git add` - Stage changes\n- `git commit` - Save changes\n- `git push` - Upload to remote\n- `git pull` - Download from remote\n\n## Best Practices\n- Commit often with clear messages\n- Use branches for features\n- Pull before pushing\n\nLearn more at [Git Documentation](https://git-scm.com/doc)",
+      "tasks": [
+        {
+          "id": "git-1",
+          "description": "Initialize a git repository with 'git init'",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "git-2",
+          "description": "Create a file, stage it with 'git add', and commit with a message",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "git-3",
+          "description": "Create a new branch and switch to it",
+          "code": "",
+          "status": "pending"
+        }
+      ],
+      "status": "pending",
+      "currentTaskIndex": 0
+    }
+  ]
+}

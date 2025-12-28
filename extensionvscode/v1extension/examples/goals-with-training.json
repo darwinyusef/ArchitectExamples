@@ -1,0 +1,103 @@
+{
+  "goals": [
+    {
+      "id": "react-basics-2025",
+      "title": "Learn React Basics",
+      "description": "Master the fundamentals of React development with expert AI guidance",
+      "week": "Semana 1",
+      "date": "2025-01-01",
+      "documentationFile": "./examples/docs/react-basics.md",
+      "trainingFile": "./examples/training/react-expert.md",
+      "tasks": [
+        {
+          "id": "react-1",
+          "description": "Create a functional component that displays 'Hello World'",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "react-2",
+          "description": "Add a useState hook to manage a counter with initial value 0",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "react-3",
+          "description": "Create a button that increments the counter onClick and displays the count",
+          "code": "",
+          "status": "pending"
+        }
+      ],
+      "status": "pending",
+      "currentTaskIndex": 0
+    },
+    {
+      "id": "python-data-science",
+      "title": "Python Data Science Basics",
+      "description": "Learn data analysis with Python, Pandas, and Jupyter notebooks",
+      "week": "Semana 2",
+      "date": "2025-01-08",
+      "documentation": "# Python Data Science\n\n## Overview\nLearn to analyze data using Python's powerful libraries.\n\n## Libraries\n- **Pandas**: Data manipulation\n- **NumPy**: Numerical computing\n- **Matplotlib**: Visualization\n\n## Getting Started\n\n```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\n```\n\n## Key Concepts\n\n### DataFrames\nPandas DataFrames are 2D labeled data structures.\n\n### Series\nOne-dimensional labeled array.\n\n### Visualization\nCreate plots to understand your data.\n\n## Example\n\n```python\ndf = pd.DataFrame({\n    'name': ['Alice', 'Bob', 'Charlie'],\n    'age': [25, 30, 35]\n})\n\nprint(df.describe())\n```",
+      "training": "# Python Data Science Expert\n\nYou are a **Senior Data Scientist** with expertise in:\n- Python pandas and numpy\n- Data cleaning and preprocessing\n- Statistical analysis\n- Data visualization best practices\n\n## Review Guidelines\n\n### Code Quality\n- Check for efficient pandas operations\n- Avoid loops where vectorization is possible\n- Use proper indexing (loc, iloc)\n- Handle missing data appropriately\n\n### Best Practices\n```python\n# ✅ Good: Vectorized operation\ndf['total'] = df['price'] * df['quantity']\n\n# ❌ Bad: Loop\nfor i in range(len(df)):\n    df.loc[i, 'total'] = df.loc[i, 'price'] * df.loc[i, 'quantity']\n```\n\n### Common Issues\n1. SettingWithCopyWarning\n2. Memory inefficiency\n3. Not using appropriate dtypes\n4. Poor visualization choices\n\nProvide specific, actionable feedback for data science code.",
+      "tasks": [
+        {
+          "id": "py-1",
+          "description": "Load a CSV file into a pandas DataFrame and display first 5 rows",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "py-2",
+          "description": "Calculate mean, median, and standard deviation of a numeric column",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "py-3",
+          "description": "Create a bar plot showing the distribution of a categorical variable",
+          "code": "",
+          "status": "pending"
+        }
+      ],
+      "status": "pending",
+      "currentTaskIndex": 0
+    },
+    {
+      "id": "api-rest-node",
+      "title": "Build REST API with Node.js",
+      "description": "Create a RESTful API using Express.js with best practices",
+      "week": "Semana 3",
+      "date": "2025-01-15",
+      "documentation": "# REST API Development\n\n## Goal\nBuild a production-ready REST API with Node.js and Express.\n\n## Tech Stack\n- Node.js\n- Express.js\n- MongoDB (or PostgreSQL)\n- JWT Authentication\n\n## API Endpoints\n\n```\nGET    /api/users      - Get all users\nGET    /api/users/:id  - Get user by ID\nPOST   /api/users      - Create user\nPUT    /api/users/:id  - Update user\nDELETE /api/users/:id  - Delete user\n```\n\n## Best Practices\n\n1. **Error Handling**: Use middleware\n2. **Validation**: Validate all inputs\n3. **Security**: Rate limiting, helmet, cors\n4. **Documentation**: OpenAPI/Swagger\n\n## Example Route\n\n```javascript\napp.get('/api/users/:id', async (req, res) => {\n  try {\n    const user = await User.findById(req.params.id);\n    if (!user) {\n      return res.status(404).json({ error: 'User not found' });\n    }\n    res.json(user);\n  } catch (error) {\n    res.status(500).json({ error: 'Server error' });\n  }\n});\n```",
+      "training": "# Backend API Expert\n\nYou are a **Senior Backend Engineer** specializing in:\n- RESTful API design\n- Node.js and Express.js\n- Security best practices\n- Scalable architecture\n\n## Review Checklist\n\n### API Design\n- [ ] Proper HTTP methods (GET, POST, PUT, DELETE)\n- [ ] Consistent URL structure\n- [ ] Appropriate status codes\n- [ ] Versioning strategy\n\n### Security\n```javascript\n// ✅ Good: Input validation\nconst { error } = userSchema.validate(req.body);\nif (error) return res.status(400).json({ error: error.details });\n\n// ❌ Bad: No validation\nconst user = await User.create(req.body);\n```\n\n### Error Handling\n```javascript\n// ✅ Good: Centralized error handler\napp.use((err, req, res, next) => {\n  console.error(err.stack);\n  res.status(500).json({ error: 'Something went wrong' });\n});\n```\n\n### Performance\n- Use async/await properly\n- Implement caching where appropriate\n- Database query optimization\n- Rate limiting\n\n### Security Issues to Flag\n1. SQL/NoSQL injection vulnerabilities\n2. Missing authentication/authorization\n3. Exposed sensitive data\n4. CORS misconfiguration\n5. No rate limiting\n\nProvide detailed security and performance feedback.",
+      "tasks": [
+        {
+          "id": "api-1",
+          "description": "Setup Express server with basic middleware (cors, helmet, body-parser)",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "api-2",
+          "description": "Create GET /api/users endpoint with error handling",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "api-3",
+          "description": "Add input validation using Joi or express-validator",
+          "code": "",
+          "status": "pending"
+        },
+        {
+          "id": "api-4",
+          "description": "Implement JWT authentication middleware",
+          "code": "",
+          "status": "pending"
+        }
+      ],
+      "status": "pending",
+      "currentTaskIndex": 0
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "// CONFIGURACIÓN DE AI GOALS TRACKER": "",
+  "// Copia este archivo a .vscode/settings.json en tu workspace": "",
+  "// o agrégalo a tu configuración global de VS Code": "",
+
+  "aiGoalsTracker.openaiApiKey": "sk-proj-TU_API_KEY_AQUI",
+
+  "// Modelo a usar (solo gpt-4o-mini)": "",
+  "aiGoalsTracker.model": "gpt-4o-mini",
+
+  "// Auto-guardar cambios en goals.json": "",
+  "aiGoalsTracker.autoSave": true,
+
+  "// CONFIGURACIÓN OPCIONAL DE VS CODE": "",
+
+  "// Tema de colores personalizado para la extensión": "",
+  "workbench.colorCustomizations": {
+    "[Default Dark+]": {
+      "statusBar.background": "#007ACC"
+    }
+  },
+
+  "// Configuración del editor recomendada": "",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  }
+}

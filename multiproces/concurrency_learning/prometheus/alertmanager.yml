@@ -1,0 +1,83 @@
+global:
+  resolve_timeout: 5m
+
+# Configuración de enrutamiento de alertas
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default'
+
+  routes:
+    # Alertas críticas (deadlocks, race conditions)
+    - match:
+        severity: critical
+      receiver: 'critical'
+      continue: false
+
+    # Alertas de warning
+    - match:
+        severity: warning
+      receiver: 'warning'
+      continue: false
+
+    # Alertas informativas
+    - match:
+        severity: info
+      receiver: 'info'
+      continue: false
+
+# Receptores de alertas
+receivers:
+  # Receptor por defecto (logs)
+  - name: 'default'
+    webhook_configs:
+      - url: 'http://localhost:5001/alerts'
+        send_resolved: true
+
+  # Alertas críticas
+  - name: 'critical'
+    # Configurar Slack, Email, PagerDuty, etc.
+    # Ejemplo con webhook genérico:
+    webhook_configs:
+      - url: 'http://localhost:5001/critical'
+        send_resolved: true
+
+    # Descomentar para Slack:
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    #     channel: '#alerts-critical'
+    #     title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  # Alertas de warning
+  - name: 'warning'
+    webhook_configs:
+      - url: 'http://localhost:5001/warning'
+        send_resolved: true
+
+  # Alertas informativas
+  - name: 'info'
+    webhook_configs:
+      - url: 'http://localhost:5001/info'
+        send_resolved: true
+
+# Configuración de inhibición (evitar alertas duplicadas)
+inhibit_rules:
+  # Si hay deadlock, no alertar sobre lock contention
+  - source_match:
+      severity: 'critical'
+      alertname: 'DeadlockDetected'
+    target_match:
+      severity: 'warning'
+      alertname: 'HighLockContention'
+    equal: ['instance']
+
+  # Si app está caída, no alertar sobre performance
+  - source_match:
+      severity: 'critical'
+      alertname: 'ApplicationDown'
+    target_match:
+      severity: 'warning'
+    equal: ['job']

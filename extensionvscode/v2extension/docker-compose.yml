@@ -1,0 +1,185 @@
+version: '3.8'
+
+services:
+  # ==================== PostgreSQL with pgvector ====================
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: ai_goals_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ai_goals_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_goals_network
+
+  # ==================== Redis ====================
+  # NOTA: Puedes comentar este servicio si usas Redis remoto (64.23.150.221:6379)
+  # En ese caso, actualiza REDIS_URL en backend environment
+  redis:
+    image: redis:7-alpine
+    container_name: ai_goals_redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_goals_network
+    profiles:
+      - local  # Solo se inicia con: docker-compose --profile local up
+
+  # ==================== RabbitMQ ====================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ai_goals_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_goals_network
+
+  # ==================== MinIO (S3-compatible storage) ====================
+  minio:
+    image: minio/minio:latest
+    container_name: ai_goals_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"   # API port
+      - "9001:9001"   # Console UI
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_goals_network
+
+  # ==================== Backend API ====================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai_goals_backend
+    environment:
+      # Application
+      DEBUG: "true"
+      ENVIRONMENT: development
+      APP_NAME: "AI Goals Tracker V2"
+      APP_VERSION: "2.0.0"
+      HOST: "0.0.0.0"
+      PORT: "8000"
+      WORKERS: "1"
+      LOG_LEVEL: "INFO"
+
+      # Database
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/ai_goals_tracker
+
+      # Redis (rate limiting)
+      # Opción 1: Usar Redis local (descomentar la dependencia de redis abajo)
+      # REDIS_URL: redis://redis:6379/0
+      # Opción 2: Usar Redis remoto (default)
+      REDIS_URL: ${REDIS_URL:-redis://64.23.150.221:6379/0}
+
+      # RabbitMQ (event streaming)
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+
+      # MinIO (file storage - opcional)
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+
+      # OpenAI API (REQUERIDO - set in .env file)
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+      # Security
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production-min-32-chars}
+
+      # CORS
+      CORS_ORIGINS: '["http://localhost:3000","http://localhost:5173","http://127.0.0.1:3000"]'
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # Descomentar si usas Redis local:
+      # redis:
+      #   condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./backend/app:/app/app  # Hot reload in development
+      - ./backend/alembic:/app/alembic  # Migrations
+    networks:
+      - ai_goals_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running migrations...' &&
+        alembic upgrade head &&
+        echo 'Starting server...' &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  # ==================== Event Processor (optional worker) ====================
+  # Uncomment when implementing event processing workers
+  # event_processor:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: ai_goals_event_processor
+  #   environment:
+  #     DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/ai_goals_tracker
+  #     REDIS_URL: redis://redis:6379/0
+  #     RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+  #     MINIO_ENDPOINT: minio:9000
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - rabbitmq
+  #     - minio
+  #   networks:
+  #     - ai_goals_network
+  #   command: python -m app.workers.event_processor
+
+networks:
+  ai_goals_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  minio_data:

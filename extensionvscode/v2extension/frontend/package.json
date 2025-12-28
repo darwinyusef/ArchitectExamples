@@ -1,0 +1,156 @@
+{
+  "name": "ai-goals-tracker-v2",
+  "displayName": "AI Goals Tracker V2",
+  "description": "Real-time AI-powered goals tracking with persistent WebSocket connection",
+  "version": "2.0.0",
+  "publisher": "ai-goals-tracker",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Education",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ai-goals-v2",
+          "title": "AI Goals Tracker",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "ai-goals-v2": [
+        {
+          "id": "goalsTreeView",
+          "name": "Goals & Tasks"
+        },
+        {
+          "id": "connectionStatus",
+          "name": "Connection Status",
+          "type": "webview"
+        },
+        {
+          "id": "goalDocumentation",
+          "name": "Documentation",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "aiGoalsV2.connect",
+        "title": "Connect to Server",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "aiGoalsV2.disconnect",
+        "title": "Disconnect from Server",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "aiGoalsV2.createGoal",
+        "title": "Create New Goal",
+        "icon": "$(add)"
+      },
+      {
+        "command": "aiGoalsV2.startGoal",
+        "title": "Start Goal",
+        "icon": "$(play)"
+      },
+      {
+        "command": "aiGoalsV2.validateTask",
+        "title": "Validate Task",
+        "icon": "$(check)"
+      },
+      {
+        "command": "aiGoalsV2.refreshGoals",
+        "title": "Refresh Goals",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "aiGoalsV2.connect",
+          "when": "view == goalsTreeView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aiGoalsV2.refreshGoals",
+          "when": "view == goalsTreeView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aiGoalsV2.createGoal",
+          "when": "view == goalsTreeView",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "aiGoalsV2.startGoal",
+          "when": "view == goalsTreeView && viewItem == goal",
+          "group": "inline"
+        },
+        {
+          "command": "aiGoalsV2.validateTask",
+          "when": "view == goalsTreeView && viewItem == task",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AI Goals Tracker V2",
+      "properties": {
+        "aiGoalsV2.serverUrl": {
+          "type": "string",
+          "default": "ws://localhost:8000/api/v1/ws",
+          "description": "WebSocket server URL"
+        },
+        "aiGoalsV2.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8000/api/v1",
+          "description": "API base URL"
+        },
+        "aiGoalsV2.autoConnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically connect to server on startup"
+        },
+        "aiGoalsV2.reconnectInterval": {
+          "type": "number",
+          "default": 5000,
+          "description": "Reconnection interval in milliseconds"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "20.x",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "axios": "^1.6.5",
+    "ws": "^8.16.0"
+  }
+}

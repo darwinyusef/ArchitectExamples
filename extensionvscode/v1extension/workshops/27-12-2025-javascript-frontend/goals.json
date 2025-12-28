@@ -1,0 +1,67 @@
+{
+  "workshopTitle": "JavaScript Frontend Basics",
+  "date": "27-12-2025",
+  "documentationFile": "documentation.md",
+  "goals": [
+    {
+      "id": "js-dom-1",
+      "title": "DOM Manipulation Basics",
+      "description": "Learn to manipulate the DOM with vanilla JavaScript",
+      "status": "pending",
+      "currentTaskIndex": 0,
+      "tasks": [
+        {
+          "id": "task-1",
+          "description": "Create an HTML button with id='myButton' and add a click event listener that shows an alert 'Hello World!'",
+          "example": "```javascript\nconst btn = document.getElementById('myButton');\nbtn.addEventListener('click', () => {\n  alert('Hello World!');\n});\n```",
+          "status": "pending",
+          "code": ""
+        },
+        {
+          "id": "task-2",
+          "description": "Create a function that changes the text content of a paragraph with id='demo' to 'Text Changed!'",
+          "example": "```javascript\nfunction changeText() {\n  document.getElementById('demo').textContent = 'Text Changed!';\n}\n```",
+          "status": "pending",
+          "code": ""
+        },
+        {
+          "id": "task-3",
+          "description": "Create a form with an input field. When submitted, display the input value in a div with id='output'",
+          "example": "```javascript\nconst form = document.querySelector('form');\nform.addEventListener('submit', (e) => {\n  e.preventDefault();\n  const value = document.querySelector('input').value;\n  document.getElementById('output').textContent = value;\n});\n```",
+          "status": "pending",
+          "code": ""
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-1",
+      "title": "JavaScript Arrays and Iteration",
+      "description": "Master array methods and iteration techniques",
+      "status": "pending",
+      "currentTaskIndex": 0,
+      "tasks": [
+        {
+          "id": "task-4",
+          "description": "Create an array of numbers [1,2,3,4,5] and use map() to multiply each by 2. Store result in 'doubled' variable.",
+          "example": "```javascript\nconst numbers = [1, 2, 3, 4, 5];\nconst doubled = numbers.map(n => n * 2);\nconsole.log(doubled); // [2, 4, 6, 8, 10]\n```",
+          "status": "pending",
+          "code": ""
+        },
+        {
+          "id": "task-5",
+          "description": "Use filter() to get only even numbers from [1,2,3,4,5,6,7,8,9,10]",
+          "example": "```javascript\nconst numbers = [1,2,3,4,5,6,7,8,9,10];\nconst evens = numbers.filter(n => n % 2 === 0);\nconsole.log(evens); // [2, 4, 6, 8, 10]\n```",
+          "status": "pending",
+          "code": ""
+        },
+        {
+          "id": "task-6",
+          "description": "Use reduce() to sum all numbers in [10, 20, 30, 40, 50]",
+          "example": "```javascript\nconst numbers = [10, 20, 30, 40, 50];\nconst sum = numbers.reduce((acc, n) => acc + n, 0);\nconsole.log(sum); // 150\n```",
+          "status": "pending",
+          "code": ""
+        }
+      ]
+    }
+  ]
+}

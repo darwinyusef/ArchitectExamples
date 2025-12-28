@@ -1,0 +1,219 @@
+groups:
+  # ============================================================================
+  # ALERTAS DE CONCURRENCIA
+  # ============================================================================
+  - name: concurrency_alerts
+    interval: 15s
+    rules:
+      # Race Conditions detectadas
+      - alert: HighRaceConditionRate
+        expr: rate(race_conditions_detected_total[1m]) > 1
+        for: 2m
+        labels:
+          severity: critical
+          category: concurrency
+        annotations:
+          summary: "Alta tasa de race conditions detectadas"
+          description: "{{ $value }} race conditions por segundo en {{ $labels.type }}"
+          dashboard: "http://grafana:3000/d/concurrency"
+
+      # Datos corruptos
+      - alert: DataCorruption
+        expr: corrupted_data_instances > 0
+        for: 30s
+        labels:
+          severity: critical
+          category: data_integrity
+        annotations:
+          summary: "Datos corruptos detectados"
+          description: "{{ $value }} instancias de datos corruptos"
+
+      # Deadlock detectado
+      - alert: DeadlockDetected
+        expr: increase(deadlocks_detected_total[1m]) > 0
+        labels:
+          severity: critical
+          category: deadlock
+        annotations:
+          summary: "Deadlock detectado"
+          description: "Se detectó un deadlock en el sistema"
+          action: "Revisar logs inmediatamente"
+
+      # Alta contención de locks
+      - alert: HighLockContention
+        expr: lock_contention_threads > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "Alta contención en locks"
+          description: "{{ $value }} threads esperando por lock {{ $labels.lock_name }}"
+          recommendation: "Considerar reducir sección crítica o usar lock-free"
+
+      # Tiempo de espera excesivo (P95)
+      - alert: ExcessiveLockWaitTime
+        expr: |
+          histogram_quantile(0.95,
+            rate(lock_wait_duration_seconds_bucket[5m])
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "Tiempo de espera de locks excesivo"
+          description: "P95 de espera: {{ $value }}s para {{ $labels.lock_name }}"
+          threshold: "1s"
+
+      # Violaciones de orden de locks
+      - alert: LockOrderViolation
+        expr: increase(lock_order_violations_total[5m]) > 0
+        labels:
+          severity: warning
+          category: deadlock_prevention
+        annotations:
+          summary: "Violación de orden de locks"
+          description: "{{ $value }} violaciones en los últimos 5 minutos"
+          risk: "Puede causar deadlocks"
+
+      # Muchos timeouts
+      - alert: HighLockTimeoutRate
+        expr: rate(lock_timeout_failures_total[5m]) > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "Alta tasa de timeouts en locks"
+          description: "{{ $value }} timeouts por segundo"
+
+  # ============================================================================
+  # ALERTAS DE RENDIMIENTO
+  # ============================================================================
+  - name: performance_alerts
+    interval: 30s
+    rules:
+      # CPU alto
+      - alert: HighCPUUsage
+        expr: cpu_usage_total > 90
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "Uso de CPU alto"
+          description: "CPU total: {{ $value }}%"
+
+      # CPU desbalanceado entre cores
+      - alert: CPUImbalance
+        expr: |
+          (
+            max(cpu_usage_per_core) - min(cpu_usage_per_core)
+          ) > 30
+        for: 5m
+        labels:
+          severity: info
+          category: performance
+        annotations:
+          summary: "Desbalance entre CPUs"
+          description: "Diferencia de {{ $value }}% entre cores"
+          recommendation: "Verificar CPU affinity de workers"
+
+      # Memoria alta
+      - alert: HighMemoryUsage
+        expr: memory_usage_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "Uso de memoria alto"
+          description: "Memoria: {{ $value }}%"
+
+      # Swap en uso (mal signo)
+      - alert: SwapInUse
+        expr: memory_swap_percent > 10
+        for: 2m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "Sistema usando swap"
+          description: "{{ $value }}% de swap en uso"
+          impact: "Degradación de performance"
+
+      # Load average alto
+      - alert: HighLoadAverage
+        expr: system_load_average{interval="1min"} > 4
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "Load average alto"
+          description: "Load 1min: {{ $value }} (CPUs: 2)"
+
+  # ============================================================================
+  # ALERTAS DE APLICACIÓN
+  # ============================================================================
+  - name: application_alerts
+    interval: 30s
+    rules:
+      # Operaciones muy lentas
+      - alert: SlowOperations
+        expr: |
+          histogram_quantile(0.99,
+            rate(concurrent_operation_duration_seconds_bucket[5m])
+          ) > 5
+        for: 3m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "Operaciones muy lentas"
+          description: "P99 de {{ $labels.operation_type }}: {{ $value }}s"
+
+      # Sin métricas (app caída)
+      - alert: ApplicationDown
+        expr: up{job=~"race_conditions|locks|deadlocks"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Aplicación Python no responde"
+          description: "{{ $labels.job }} no está exportando métricas"
+          action: "Verificar proceso Python"
+
+  # ============================================================================
+  # ALERTAS DE SISTEMA
+  # ============================================================================
+  - name: system_alerts
+    interval: 1m
+    rules:
+      # Disco casi lleno
+      - alert: DiskSpaceLow
+        expr: |
+          (
+            node_filesystem_avail_bytes{mountpoint="/"} /
+            node_filesystem_size_bytes{mountpoint="/"}
+          ) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          category: resources
+        annotations:
+          summary: "Espacio en disco bajo"
+          description: "Solo {{ $value }}% disponible en /"
+
+      # Muchos procesos
+      - alert: TooManyProcesses
+        expr: node_processes_state{state="running"} > 100
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "Demasiados procesos corriendo"
+          description: "{{ $value }} procesos en estado running"

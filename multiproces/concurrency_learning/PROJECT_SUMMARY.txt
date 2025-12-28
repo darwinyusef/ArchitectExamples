@@ -1,0 +1,328 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║       🎓 PYTHON CONCURRENCY LEARNING - PROYECTO COMPLETO 🎓              ║
+║                                                                          ║
+║  Curso completo de Concurrencia, Paralelismo y Sincronización          ║
+║  con visualización en tiempo real usando Grafana y Prometheus          ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+📦 CONTENIDO DEL PROYECTO
+═══════════════════════════
+
+✅ 8 Módulos Python educativos (con comentarios extensivos)
+✅ 3 Módulos avanzados (Race Conditions, Locks, Deadlocks)
+✅ Sistema completo de Job Queue
+✅ Servidor WebSocket + Workers
+✅ Monitor de CPU y sistema
+✅ Docker Compose configurado
+✅ Prometheus + Grafana + Alertmanager
+✅ 15+ Alertas pre-configuradas
+✅ Dashboard completo de Grafana (11 paneles)
+✅ Script de gestión automática (run.sh)
+✅ 5 Guías de documentación
+
+🚀 QUICK START
+═══════════════
+
+# En tu droplet (Digital Ocean - 2 CPUs / 2 GB RAM)
+cd ~/concurrency_learning
+./run.sh setup
+
+# Abrir Grafana
+http://YOUR_DROPLET_IP:3000
+Usuario: admin / Password: admin
+
+# ¡Listo! 🎉
+
+📁 ESTRUCTURA
+══════════════
+
+concurrency_learning/
+├── basics/                      # Conceptos básicos
+│   ├── 01_threading_basics.py
+│   └── 02_multiprocessing_basics.py
+│
+├── workers/                     # Job Queue System
+│   └── job_queue_system.py
+│
+├── websockets/                  # WebSocket + Workers
+│   ├── websocket_server.py
+│   └── websocket_client.html
+│
+├── monitoring/                  # Monitoreo
+│   └── cpu_monitor.py
+│
+├── advanced/                    # 🔥 TEMAS AVANZADOS
+│   ├── race_conditions/
+│   │   └── 01_race_conditions.py       (puerto 8000)
+│   ├── locks/
+│   │   └── 02_locks_mutex.py           (puerto 8001)
+│   ├── deadlocks/
+│   │   └── 03_deadlocks.py             (puerto 8002)
+│   └── README_ADVANCED.md
+│
+├── examples/                    # Ejemplos prácticos
+│   └── demo_completo.py
+│
+├── grafana/                     # 📈 GRAFANA
+│   ├── provisioning/
+│   ├── dashboards.json
+│   └── setup_grafana.sh
+│
+├── prometheus/                  # 📊 PROMETHEUS
+│   ├── prometheus.yml
+│   ├── alerts.yml (15+ alertas)
+│   └── alertmanager.yml
+│
+├── docker-compose.yml           # 🐳 DOCKER
+├── Dockerfile
+├── .dockerignore
+│
+├── run.sh                       # 🛠️ SCRIPT DE GESTIÓN
+│
+└── 📚 DOCUMENTACIÓN
+    ├── INDEX.md                 # Índice completo
+    ├── QUICKSTART.md            # Inicio rápido
+    ├── README.md                # Guía completa
+    ├── README_DOCKER.md         # Setup Docker
+    └── DOCKER_SETUP.md          # Guía detallada
+
+📊 SERVICIOS Y PUERTOS
+═══════════════════════
+
+Docker (auto-configurado):
+  ├─ Grafana        → http://IP:3000  (admin/admin)
+  ├─ Prometheus     → http://IP:9090
+  ├─ Alertmanager   → http://IP:9093
+  └─ Node Exporter  → http://IP:9100
+
+Python Apps (en host):
+  ├─ Race Conditions → :8000/metrics
+  ├─ Locks          → :8001/metrics
+  ├─ Deadlocks      → :8002/metrics
+  ├─ CPU Monitor    → :8003/metrics
+  └─ WebSocket      → :8765
+
+📈 MÉTRICAS DISPONIBLES (Prometheus)
+═════════════════════════════════════
+
+Concurrencia:
+  • race_conditions_detected_total
+  • corrupted_data_instances
+  • lock_acquisitions_total
+  • lock_wait_duration_seconds
+  • lock_hold_duration_seconds
+  • lock_contention_threads
+  • deadlocks_detected_total
+  • deadlocks_prevented_total
+  • lock_order_violations_total
+  • lock_timeout_failures_total
+
+Sistema:
+  • cpu_usage_total
+  • cpu_usage_per_core
+  • memory_usage_percent
+  • memory_used_mb
+  • system_load_average
+
+Performance:
+  • concurrent_operation_duration_seconds
+  • up (health check)
+
+🎓 TEMAS CUBIERTOS
+═══════════════════
+
+Fundamentos:
+  ✓ Concurrencia vs Paralelismo
+  ✓ Threading vs Multiprocessing
+  ✓ GIL (Global Interpreter Lock)
+  ✓ I/O-bound vs CPU-bound
+
+Sincronización:
+  ✓ Race Conditions
+  ✓ Secciones Críticas
+  ✓ Mutual Exclusion (Mutex)
+  ✓ Locks (Lock, RLock, Multiprocessing Lock)
+  ✓ Deadlocks (4 condiciones + 4 soluciones)
+  ✓ Semáforos
+  ✓ Visibilidad de Memoria
+
+Patrones:
+  ✓ Job Queue / Task Queue
+  ✓ Worker Pool
+  ✓ Producer-Consumer
+  ✓ WebSocket + Workers
+  ✓ CPU Affinity
+
+Monitoreo:
+  ✓ Prometheus
+  ✓ Grafana
+  ✓ Alertas
+  ✓ Performance profiling
+
+🛠️ COMANDOS PRINCIPALES
+═════════════════════════
+
+# Setup inicial (primera vez)
+./run.sh setup
+
+# Gestión de apps
+./run.sh start          # Iniciar apps Python
+./run.sh stop           # Detener todo
+./run.sh restart        # Reiniciar
+./run.sh status         # Ver estado
+./run.sh logs           # Ver logs
+
+# Docker
+./run.sh docker-start   # Solo Grafana/Prometheus
+./run.sh docker-stop
+./run.sh docker-logs
+
+# Demos
+./run.sh demo-basic     # Demos básicos
+./run.sh demo-full      # Demo completo
+./run.sh demo-ws        # WebSocket server
+
+# Ayuda
+./run.sh help
+
+📚 GUÍAS DE INICIO
+═══════════════════
+
+Para Principiantes:
+  → QUICKSTART.md (5 minutos)
+
+Para Usuarios de Docker:
+  → README_DOCKER.md
+
+Documentación Completa:
+  → README.md
+
+Guía Detallada de Docker:
+  → DOCKER_SETUP.md
+
+Navegación del Proyecto:
+  → INDEX.md (este resumen extendido)
+
+Temas Avanzados:
+  → advanced/README_ADVANCED.md
+
+🎯 RUTAS DE APRENDIZAJE
+════════════════════════
+
+Nivel 1: Principiante (2-3h)
+  1. basics/01_threading_basics.py
+  2. basics/02_multiprocessing_basics.py
+  3. workers/job_queue_system.py
+  4. examples/demo_completo.py
+
+Nivel 2: Intermedio (3-4h)
+  5. websockets/websocket_server.py
+  6. monitoring/cpu_monitor.py prometheus
+  7. Setup Grafana + importar dashboard
+  8. Observar métricas en tiempo real
+
+Nivel 3: Avanzado (4-6h)
+  9. advanced/race_conditions/01_race_conditions.py
+  10. advanced/locks/02_locks_mutex.py
+  11. advanced/deadlocks/03_deadlocks.py
+  12. Análisis de métricas en Grafana
+  13. Experimentación con escenarios
+
+🏆 CARACTERÍSTICAS DESTACADAS
+═══════════════════════════════
+
+✨ Auto-provisioning de Grafana
+   → Datasource y dashboards configurados automáticamente
+
+✨ 15+ Alertas pre-configuradas
+   → Deadlocks, Race Conditions, Alta CPU, etc.
+
+✨ Comentarios educativos extensivos
+   → Cada función explicada con teoría
+
+✨ Script de gestión (run.sh)
+   → Un comando para todo
+
+✨ Métricas en tiempo real
+   → Visualiza problemas mientras ocurren
+
+✨ CPU Affinity
+   → Workers asignados a CPUs específicos
+
+✨ 4 Soluciones a Deadlocks
+   → Comparación práctica
+
+✨ Ejemplos del mundo real
+   → Sistema bancario, procesamiento de imágenes
+
+🐛 TROUBLESHOOTING RÁPIDO
+═══════════════════════════
+
+Problema: No se conecta a Grafana
+  → docker-compose up -d
+  → Verificar: docker-compose ps
+
+Problema: No hay métricas
+  → ./run.sh status
+  → curl http://localhost:8000/metrics
+
+Problema: Apps Python no inician
+  → Ver logs: ./run.sh logs
+  → pip3 install -r requirements.txt
+
+Problema: Puerto en uso
+  → netstat -tulpn | grep 3000
+  → kill -9 <PID>
+
+✅ CHECKLIST POST-SETUP
+════════════════════════
+
+□ Docker containers corriendo (docker-compose ps)
+□ Grafana accesible (http://IP:3000)
+□ Prometheus accesible (http://IP:9090)
+□ Apps Python corriendo (./run.sh status)
+□ Métricas disponibles (curl http://localhost:8000/metrics)
+□ Targets UP en Prometheus (/targets)
+□ Dashboard importado en Grafana
+□ Datos visibles en dashboard
+
+📖 DOCUMENTACIÓN COMPLETA
+══════════════════════════
+
+INDEX.md              → Navegación completa del proyecto
+QUICKSTART.md         → Inicio en 5 minutos
+README.md             → Guía completa con teoría
+README_DOCKER.md      → Setup Docker rápido
+DOCKER_SETUP.md       → Guía detallada Docker
+advanced/README_ADVANCED.md → Temas avanzados
+
+🔗 RECURSOS ÚTILES
+═══════════════════
+
+Cada archivo .py tiene:
+  ✓ Comentarios extensivos
+  ✓ Explicaciones teóricas
+  ✓ Ejemplos prácticos
+  ✓ Métricas exportadas
+
+Dashboard de Grafana:
+  ✓ 11 paneles configurados
+  ✓ Queries optimizadas
+  ✓ Alertas visuales
+
+Prometheus:
+  ✓ 15+ reglas de alertas
+  ✓ Targets auto-descubiertos
+  ✓ Retention configurado
+
+═══════════════════════════════════════════════════════════════════════════
+
+                    🎉 ¡PROYECTO COMPLETO Y LISTO! 🎉
+
+           Para empezar: ./run.sh setup
+           Para ayuda: ./run.sh help
+           Documentación: README.md
+
+═══════════════════════════════════════════════════════════════════════════

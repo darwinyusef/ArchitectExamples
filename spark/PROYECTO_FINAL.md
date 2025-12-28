@@ -60,6 +60,7 @@ Sistema completo de detección de fraude en transacciones bancarias que integra 
 | **Almacenamiento** | PostgreSQL 15 | Base de datos relacional |
 | **Formato Datos** | Apache Parquet | Almacenamiento columnar eficiente |
 | **Visualización** | Matplotlib, Seaborn | Gráficos y reportes |
+| **Monitoreo** | Grafana 10.x | Dashboards en tiempo real |
 | **MLOps** | MLflow + Airflow | Ciclo de vida ML en producción |
 
 ---
@@ -326,10 +327,19 @@ def predict_fraud():
 - A/B testing de nuevos modelos
 - Promoción automática a producción
 
-### 4. **Monitoring Continuo**
-- Drift detection en features
-- Distribución de predicciones
-- Alertas de anomalías
+### 4. **Monitoring Continuo con Grafana** ⭐
+- Dashboards en tiempo real
+- Métricas de modelo (accuracy, precision, recall, F1)
+- Monitoreo de transacciones
+- Alertas automáticas
+
+**Dashboards incluidos**:
+1. **Fraud Detection Overview**: Transacciones y fraude en tiempo real
+2. **Model Performance Monitoring**: Métricas de ML y confusion matrix
+
+**Acceso**: http://localhost:3000 (admin/admin)
+
+📖 Ver [GRAFANA_GUIDE.md](GRAFANA_GUIDE.md) para guía completa
 
 ---
 
@@ -382,8 +392,8 @@ def predict_fraud():
 - [ ] CI/CD con GitHub Actions
 
 ### Mediano Plazo
+- [x] Dashboard en tiempo real (Grafana) ✅
 - [ ] Streaming con Kafka/Spark Streaming
-- [ ] Dashboard en tiempo real (Grafana)
 - [ ] A/B testing framework
 - [ ] Feature store (Feast)
 
@@ -441,6 +451,7 @@ docker-compose restart airflow-scheduler
 - [Notebook Completo](notebooks/08_proyecto_final_integracion.ipynb)
 - [DAG de Airflow](airflow/dags/fraud_detection_pipeline.py)
 - [Guía de Visualizaciones](VISUALIZATION_GUIDE.md)
+- [Guía de Grafana](GRAFANA_GUIDE.md) ⭐ NUEVO
 - [Quick Start](QUICKSTART.md)
 
 ### Tutoriales

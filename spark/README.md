@@ -116,6 +116,8 @@ Esto iniciará:
 - MLflow UI: http://localhost:5000
 - PostgreSQL: localhost:5432
 - Airflow: http://localhost:8080
+- PgAdmin: http://localhost:5050
+- Grafana: http://localhost:3000 (admin/admin)
 
 ## Uso
 
@@ -154,11 +156,40 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db
 - Los modelos se guardan en la carpeta `mlruns/`
 - Los logs de Spark se almacenan en `logs/`
 
+## Monitoreo con Grafana
+
+El proyecto incluye dashboards pre-configurados de Grafana para monitorear:
+
+### Dashboards Disponibles
+
+1. **Fraud Detection Overview** (`fraud_overview`)
+   - Transacciones en tiempo real
+   - Métricas de fraude
+   - Análisis por categoría y hora
+   - Refresh: 5 segundos
+
+2. **Model Performance Monitoring** (`model_performance`)
+   - Métricas de modelos ML (accuracy, precision, recall, F1)
+   - Confusion matrix components
+   - Tendencias de performance
+   - Refresh: 30 segundos
+
+### Acceso a Grafana
+
+```
+URL: http://localhost:3000
+Usuario: admin
+Contraseña: admin
+```
+
+📖 Ver [GRAFANA_GUIDE.md](GRAFANA_GUIDE.md) para guía completa de uso
+
 ## Recursos Adicionales
 
 - [Apache Spark Documentation](https://spark.apache.org/docs/latest/)
 - [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
 - [Airflow Documentation](https://airflow.apache.org/docs/)
+- [Grafana Documentation](https://grafana.com/docs/)
 
 ## Autor
 

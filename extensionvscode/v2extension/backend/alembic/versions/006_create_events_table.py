@@ -19,7 +19,24 @@ depends_on = None
 
 def upgrade() -> None:
     """Create events table."""
-    # Create ENUM type for event types
+    # Create ENUM type for event types if it doesn't exist
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE eventtype AS ENUM (
+                'user.created', 'user.updated', 'user.login', 'user.logout',
+                'course.created', 'course.updated', 'course.completed', 'course.archived',
+                'goal.created', 'goal.updated', 'goal.started', 'goal.completed', 'goal.blocked',
+                'task.created', 'task.updated', 'task.started', 'task.completed',
+                'task.validated', 'task.failed',
+                'code.submitted', 'code.reviewed', 'code.validated',
+                'ai.feedback.generated', 'ai.goal.suggested', 'ai.validation.completed',
+                'system.error', 'system.warning'
+            );
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+
     event_type_enum = ENUM(
         # User events
         'user.created', 'user.updated', 'user.login', 'user.logout',
@@ -37,9 +54,8 @@ def upgrade() -> None:
         # System events
         'system.error', 'system.warning',
         name='eventtype',
-        create_type=True
+        create_type=False
     )
-    event_type_enum.create(op.get_bind())
 
     op.create_table(
         'events',

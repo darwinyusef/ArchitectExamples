@@ -70,7 +70,7 @@ class Event(Base):
         entity_type: Tipo de entidad afectada (goal, task, etc.)
         entity_id: ID de la entidad afectada
         payload: Datos del evento (JSON)
-        metadata: Metadatos adicionales (IP, user agent, etc.)
+        event_metadata: Metadatos adicionales (IP, user agent, etc.)
         created_at: Timestamp del evento
         processed_at: Timestamp de procesamiento
         parquet_path: Path al archivo Parquet donde se guardó
@@ -113,14 +113,14 @@ class Event(Base):
     # }
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
 
-    # Metadata (JSON)
+    # Event metadata (JSON)
     # Estructura: {
     #   "ip_address": "192.168.1.1",
     #   "user_agent": "...",
     #   "source": "vscode_extension",
     #   "version": "2.0.0"
     # }
-    metadata: Mapped[dict] = mapped_column(JSON, nullable=True)
+    event_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

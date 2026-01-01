@@ -28,7 +28,7 @@ class Course(Base):
         title: Título del curso
         description: Descripción detallada
         status: Estado del curso (draft, active, completed, archived)
-        metadata: Datos adicionales (tecnologías, recursos, etc.)
+        course_metadata: Datos adicionales (tecnologías, recursos, etc.)
         progress_percentage: Progreso del curso (0-100)
         created_at: Fecha de creación
         updated_at: Fecha de última actualización
@@ -68,14 +68,14 @@ class Course(Base):
     # Progress
     progress_percentage: Mapped[float] = mapped_column(default=0.0, nullable=False)
 
-    # Metadata (JSON)
+    # Course metadata (JSON)
     # Estructura: {
     #   "technologies": ["Python", "FastAPI", "React"],
     #   "resources": [{"type": "doc", "url": "..."}],
     #   "difficulty": "intermediate",
     #   "estimated_hours": 40
     # }
-    metadata: Mapped[dict] = mapped_column(JSON, nullable=True)
+    course_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

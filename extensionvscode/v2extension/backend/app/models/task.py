@@ -48,7 +48,7 @@ class Task(Base):
         actual_hours: Horas reales trabajadas
         validation_result: Resultado de validación por IA
         ai_feedback: Feedback generado por IA
-        metadata: Datos adicionales
+        task_metadata: Datos adicionales
         created_at: Fecha de creación
         updated_at: Fecha de última actualización
         started_at: Fecha de inicio
@@ -119,14 +119,14 @@ class Task(Base):
     # AI Feedback (texto generado por LangGraph)
     ai_feedback: Mapped[str] = mapped_column(Text, nullable=True)
 
-    # Metadata (JSON)
+    # Task metadata (JSON)
     # Estructura: {
     #   "files": ["/path/to/file.py"],
     #   "commits": ["abc123"],
     #   "dependencies": ["task-id-1"],
     #   "tags": ["backend", "critical"]
     # }
-    metadata: Mapped[dict] = mapped_column(JSON, nullable=True)
+    task_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

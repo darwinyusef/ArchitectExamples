@@ -21,28 +21,59 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Create rate_limit_audits table."""
 
-    # Create enum types
+    # Create enum types if they don't exist
     op.execute("""
-        CREATE TYPE ratelimitaction AS ENUM (
-            'api_call',
-            'embedding_generation',
-            'chat_completion',
-            'code_validation',
-            'rag_search',
-            'similarity_search',
-            'bulk_create',
-            'bulk_update'
-        )
+        DO $$ BEGIN
+            CREATE TYPE ratelimitaction AS ENUM (
+                'api_call',
+                'embedding_generation',
+                'chat_completion',
+                'code_validation',
+                'rag_search',
+                'similarity_search',
+                'bulk_create',
+                'bulk_update'
+            );
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
     """)
 
     op.execute("""
-        CREATE TYPE ratelimitstatus AS ENUM (
-            'allowed',
-            'rate_limited',
-            'token_limit_exceeded',
-            'quota_exceeded'
-        )
+        DO $$ BEGIN
+            CREATE TYPE ratelimitstatus AS ENUM (
+                'allowed',
+                'rate_limited',
+                'token_limit_exceeded',
+                'quota_exceeded'
+            );
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
     """)
+
+    # Define enum references (with create_type=False)
+    rate_limit_action_enum = postgresql.ENUM(
+        'api_call',
+        'embedding_generation',
+        'chat_completion',
+        'code_validation',
+        'rag_search',
+        'similarity_search',
+        'bulk_create',
+        'bulk_update',
+        name='ratelimitaction',
+        create_type=False
+    )
+
+    rate_limit_status_enum = postgresql.ENUM(
+        'allowed',
+        'rate_limited',
+        'token_limit_exceeded',
+        'quota_exceeded',
+        name='ratelimitstatus',
+        create_type=False
+    )
 
     # Create table
     op.create_table(
@@ -53,26 +84,10 @@ def upgrade() -> None:
         # Request info
         sa.Column('endpoint', sa.String(200), nullable=False),
         sa.Column('method', sa.String(10), nullable=False),
-        sa.Column('action', postgresql.ENUM(
-            'api_call',
-            'embedding_generation',
-            'chat_completion',
-            'code_validation',
-            'rag_search',
-            'similarity_search',
-            'bulk_create',
-            'bulk_update',
-            name='ratelimitaction'
-        ), nullable=False, index=True),
+        sa.Column('action', rate_limit_action_enum, nullable=False, index=True),
 
         # Rate limit status
-        sa.Column('status', postgresql.ENUM(
-            'allowed',
-            'rate_limited',
-            'token_limit_exceeded',
-            'quota_exceeded',
-            name='ratelimitstatus'
-        ), nullable=False, index=True),
+        sa.Column('status', rate_limit_status_enum, nullable=False, index=True),
         sa.Column('allowed', sa.Boolean, default=True, nullable=False),
 
         # Token Bucket info

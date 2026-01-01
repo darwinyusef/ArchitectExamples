@@ -19,20 +19,34 @@ depends_on = None
 
 def upgrade() -> None:
     """Create tasks table."""
-    # Create ENUM types
+    # Create ENUM types if they don't exist
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE taskstatus AS ENUM ('todo', 'in_progress', 'in_review', 'completed', 'failed', 'skipped');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE tasktype AS ENUM ('code', 'documentation', 'testing', 'research', 'review', 'deployment', 'other');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+
     task_status_enum = ENUM(
         'todo', 'in_progress', 'in_review', 'completed', 'failed', 'skipped',
         name='taskstatus',
-        create_type=True
+        create_type=False
     )
-    task_status_enum.create(op.get_bind())
 
     task_type_enum = ENUM(
         'code', 'documentation', 'testing', 'research', 'review', 'deployment', 'other',
         name='tasktype',
-        create_type=True
+        create_type=False
     )
-    task_type_enum.create(op.get_bind())
 
     op.create_table(
         'tasks',

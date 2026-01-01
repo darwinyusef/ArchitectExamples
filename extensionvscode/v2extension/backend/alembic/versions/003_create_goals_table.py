@@ -19,20 +19,34 @@ depends_on = None
 
 def upgrade() -> None:
     """Create goals table."""
-    # Create ENUM types
+    # Create ENUM types if they don't exist
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE goalstatus AS ENUM ('pending', 'in_progress', 'completed', 'blocked', 'cancelled');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE goalpriority AS ENUM ('low', 'medium', 'high', 'urgent');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+
     goal_status_enum = ENUM(
         'pending', 'in_progress', 'completed', 'blocked', 'cancelled',
         name='goalstatus',
-        create_type=True
+        create_type=False
     )
-    goal_status_enum.create(op.get_bind())
 
     goal_priority_enum = ENUM(
         'low', 'medium', 'high', 'urgent',
         name='goalpriority',
-        create_type=True
+        create_type=False
     )
-    goal_priority_enum.create(op.get_bind())
 
     op.create_table(
         'goals',

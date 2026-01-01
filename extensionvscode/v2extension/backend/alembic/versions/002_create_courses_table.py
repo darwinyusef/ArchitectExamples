@@ -19,13 +19,20 @@ depends_on = None
 
 def upgrade() -> None:
     """Create courses table."""
-    # Create ENUM type
+    # Create ENUM type if it doesn't exist
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE coursestatus AS ENUM ('draft', 'active', 'completed', 'archived');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+
     course_status_enum = ENUM(
         'draft', 'active', 'completed', 'archived',
         name='coursestatus',
-        create_type=True
+        create_type=False
     )
-    course_status_enum.create(op.get_bind())
 
     op.create_table(
         'courses',

@@ -31,7 +31,7 @@ class CodeSnapshot(Base):
         validation_score: Score de validación (0-1)
         validation_feedback: Feedback generado por IA
         issues_found: Lista de issues encontrados
-        metadata: Metadatos adicionales
+        snapshot_metadata: Metadatos adicionales
         storage_path: Path en S3/MinIO donde se guardó
         created_at: Timestamp de creación
 
@@ -87,7 +87,7 @@ class CodeSnapshot(Base):
     # ]
     issues_found: Mapped[list] = mapped_column(JSON, nullable=True)
 
-    # Metadata (JSON)
+    # Snapshot metadata (JSON)
     # Estructura: {
     #   "lines_of_code": 150,
     #   "complexity": "medium",
@@ -96,7 +96,7 @@ class CodeSnapshot(Base):
     #   "test_coverage": 0.85,
     #   "git_commit": "abc123"
     # }
-    metadata: Mapped[dict] = mapped_column(JSON, nullable=True)
+    snapshot_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=True)
 
     # Storage (path en S3/MinIO para archivos grandes)
     storage_path: Mapped[str] = mapped_column(String(500), nullable=True)

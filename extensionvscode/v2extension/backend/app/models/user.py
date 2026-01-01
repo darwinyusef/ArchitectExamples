@@ -21,7 +21,7 @@ class User(Base):
         full_name: Nombre completo del usuario
         is_active: Si el usuario está activo
         is_superuser: Si el usuario es administrador
-        metadata: Datos adicionales (preferencias, configuración)
+        user_metadata: Datos adicionales (preferencias, configuración)
         created_at: Fecha de creación
         updated_at: Fecha de última actualización
         last_login_at: Fecha de último login
@@ -52,13 +52,13 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    # Metadata (JSON)
+    # User metadata (JSON)
     # Estructura: {
     #   "preferences": {"theme": "dark", "language": "es"},
     #   "settings": {"notifications": true},
     #   "profile": {"avatar_url": "...", "bio": "..."}
     # }
-    metadata: Mapped[dict] = mapped_column(JSON, nullable=True)
+    user_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

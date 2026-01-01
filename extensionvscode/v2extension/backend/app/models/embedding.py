@@ -31,7 +31,7 @@ class Embedding(Base):
         content: Texto original que se embeddeó
         embedding: Vector de 1536 dimensiones (OpenAI text-embedding-3-small)
         model: Modelo usado para generar el embedding
-        metadata: Metadatos adicionales
+        embedding_metadata: Metadatos adicionales
         created_at: Timestamp de creación
 
     Relaciones:
@@ -73,7 +73,7 @@ class Embedding(Base):
         nullable=False
     )
 
-    # Metadata (JSON)
+    # Embedding metadata (JSON)
     # Estructura: {
     #   "chunk_index": 0,
     #   "total_chunks": 1,
@@ -81,7 +81,7 @@ class Embedding(Base):
     #   "source": "user_input",
     #   "version": "1.0"
     # }
-    metadata: Mapped[dict] = mapped_column(JSON, nullable=True)
+    embedding_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

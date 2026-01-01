@@ -111,7 +111,7 @@ class RateLimitAudit(Base):
     user_agent: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     # Additional metadata
-    metadata: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    audit_metadata: Mapped[Dict[str, Any]] = mapped_column("metadata", JSON, default=dict, nullable=False)
 
     # Timestamps
     timestamp: Mapped[datetime] = mapped_column(

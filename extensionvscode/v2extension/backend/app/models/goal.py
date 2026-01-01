@@ -42,7 +42,7 @@ class Goal(Base):
         progress_percentage: Progreso del goal (0-100)
         ai_generated: Si fue generado por IA
         validation_criteria: Criterios de validación
-        metadata: Datos adicionales
+        goal_metadata: Datos adicionales
         created_at: Fecha de creación
         updated_at: Fecha de última actualización
         started_at: Fecha de inicio
@@ -108,7 +108,7 @@ class Goal(Base):
     # }
     validation_criteria: Mapped[dict] = mapped_column(JSON, nullable=True)
 
-    # Metadata (JSON)
+    # Goal metadata (JSON)
     # Estructura: {
     #   "tags": ["backend", "api"],
     #   "estimated_hours": 8,
@@ -116,7 +116,7 @@ class Goal(Base):
     #   "difficulty": "medium",
     #   "resources": [...]
     # }
-    metadata: Mapped[dict] = mapped_column(JSON, nullable=True)
+    goal_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

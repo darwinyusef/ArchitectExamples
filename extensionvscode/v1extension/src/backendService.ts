@@ -10,7 +10,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import * as vscode from 'vscode';
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 import { Goal, Task } from './types';
 
 export interface BackendConfig {
@@ -281,7 +281,7 @@ export class BackendService {
 
             this.ws = new WebSocket(wsUrl);
 
-            this.ws.onopen = () => {
+            this.ws.on('open', () => {
                 this.log('✓ WebSocket connected');
 
                 // Subscribe to events
@@ -289,25 +289,26 @@ export class BackendService {
                     type: 'subscribe',
                     channels: ['goals', 'tasks', 'code_validation']
                 });
-            };
+            });
 
-            this.ws.onmessage = (event: WebSocket.MessageEvent) => {
+            this.ws.on('message', (data: WebSocket.Data) => {
                 try {
-                    const data = JSON.parse(event.data);
-                    this.handleWebSocketMessage(data);
+                    const message = data.toString();
+                    const parsed = JSON.parse(message);
+                    this.handleWebSocketMessage(parsed);
                 } catch (error) {
                     this.log(`Failed to parse WebSocket message: ${error}`, 'error');
                 }
-            };
+            });
 
-            this.ws.onerror = (error: WebSocket.ErrorEvent) => {
-                this.log(`WebSocket error: ${error}`, 'error');
-            };
+            this.ws.on('error', (error: Error) => {
+                this.log(`WebSocket error: ${error.message}`, 'error');
+            });
 
-            this.ws.onclose = () => {
+            this.ws.on('close', () => {
                 this.log('WebSocket disconnected', 'warn');
                 this.scheduleReconnect();
-            };
+            });
 
         } catch (error) {
             this.log(`Failed to connect WebSocket: ${error}`, 'error');

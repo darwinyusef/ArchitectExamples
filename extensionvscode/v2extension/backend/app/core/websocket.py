@@ -64,8 +64,15 @@ class ConnectionManager:
         # Connection metadata: connection_id -> user_id
         self.connection_users: Dict[str, str] = {}
 
-        # Redis service for persistence
-        self.redis = RedisService()
+        # Redis service for persistence (lazy initialization)
+        self._redis: Optional[RedisService] = None
+
+    @property
+    def redis(self) -> RedisService:
+        """Get Redis service instance (lazy initialization)."""
+        if self._redis is None:
+            self._redis = RedisService()
+        return self._redis
 
     async def authenticate(self, websocket: WebSocket) -> Optional[str]:
         """

@@ -47,11 +47,16 @@ Notebooks intermedios y avanzados con DuckDB, MLOps, y análisis especializados.
 
 ### 📊 Serie DuckDB + ML (⭐⭐ Intermedio)
 
+| # | Notebook | Tecnologías | Descripción | Complejidad |
+|---|----------|-------------|-------------|-------------|
+| 13 | [DuckDB + Parquet Múltiple](13_duckdb_parquet_multiple.ipynb) | DuckDB, Parquet, PyArrow | Procesamiento de múltiples archivos Parquet particionados | ⭐⭐ |
+| 14 | [DuckDB + MLflow + TimeSeries](14_duckdb_mlflow_timeseries.ipynb) | DuckDB, MLflow, Prophet, ARIMA, LSTM | Forecasting con tracking de experimentos | ⭐⭐⭐ |
+| 15 | [MLflow + LangGraph](15_mlflow_langgraph.ipynb) | MLflow, LangGraph, LangChain, LLMs | Workflows de AI con tracking completo | ⭐⭐⭐⭐ |
+
+### 🎯 Serie Avanzada (En desarrollo)
+
 | # | Notebook | Tecnologías | Descripción | Estado |
 |---|----------|-------------|-------------|--------|
-| 13 | DuckDB + MLflow | DuckDB, MLflow, Analytics | Tracking de experimentos con DuckDB | 📝 Planeado |
-| 14 | DuckDB + PyTorch + MLflow | DuckDB, PyTorch, Deep Learning | Pipeline completo de DL con DuckDB | 📝 Planeado |
-| 15 | DuckDB + TensorFlow + MLflow | DuckDB, TensorFlow, Keras | Entrenamiento y tracking con DuckDB | 📝 Planeado |
 | 16 | DuckDB + Scikit-learn | DuckDB, Sklearn, Feature Engineering | ML clásico con DuckDB analytics | 📝 Planeado |
 | 17 | DuckDB + SciPy | DuckDB, SciPy, Optimización | Análisis estadístico avanzado | 📝 Planeado |
 
@@ -135,6 +140,8 @@ Serie Básica → 13 DuckDB+MLflow → 14 DuckDB+PyTorch → 16 DuckDB+Sklearn
 - **Plotly**: Gráficos interactivos
 
 ### AI/LLM
+- **LangGraph**: Framework para workflows de LLMs
+- **LangChain**: Herramientas para LLMs
 - **OpenAI GPT**: Análisis con LLMs
 - **Anthropic Claude**: Generación de insights
 
@@ -147,7 +154,8 @@ Serie Básica → 13 DuckDB+MLflow → 14 DuckDB+PyTorch → 16 DuckDB+Sklearn
 pip install pyspark pandas numpy matplotlib seaborn plotly
 pip install torch torchvision tensorflow scikit-learn
 pip install mlflow prophet statsmodels
-pip install duckdb apache-airflow
+pip install duckdb pyarrow apache-airflow
+pip install langgraph langchain langchain-core faker
 ```
 
 ### Requisitos por Notebook
@@ -265,10 +273,13 @@ Al completar estas series, podrás:
 
 - ✅ **Serie Existente (01-08)**: Completa
 - ✅ **Serie Básica (09-12)**: Completa
-- 📝 **Serie DuckDB + ML (13-17)**: Planeada
+- ✅ **Serie DuckDB + ML (13-15)**: Completa
+- 📝 **Serie Avanzada (16-17)**: Planeada
 - 📝 **Serie MLOps (18-21)**: Planeada
 
 **Última actualización**: Enero 2025
+
+### 📈 Progreso Total: 15/21 notebooks (71% completado)
 
 ---
 

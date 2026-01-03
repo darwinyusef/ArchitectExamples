@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Goals Tracker - Test Client</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .api-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .api-info code {
+            background: #fff;
+            padding: 3px 8px;
+            border-radius: 3px;
+            color: #e83e8c;
+            font-family: 'Courier New', monospace;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .response-box {
+            background: #2d3748;
+            color: #68d391;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border-left: 4px solid #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI Goals Tracker</h1>
+            <p>Backend API Test Client</p>
+        </div>
+
+        <div class="content">
+            <!-- API Status -->
+            <div class="section">
+                <h2>🔌 API Status</h2>
+                <div class="api-info">
+                    <strong>Base URL:</strong> <code id="baseUrl">http://localhost:8000</code>
+                </div>
+                <button class="btn-primary" onclick="checkHealth()">Check Health</button>
+                <button class="btn-primary" onclick="getRoot()">Get Root Info</button>
+                <div id="statusResponse" class="response-box" style="display: none;"></div>
+            </div>
+
+            <!-- Authentication -->
+            <div class="section">
+                <h2>🔐 Authentication</h2>
+                <div class="input-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" placeholder="user@example.com" value="test@example.com">
+                </div>
+                <div class="input-group">
+                    <label for="registerPassword">Password:</label>
+                    <input type="password" id="registerPassword" placeholder="Password" value="testpassword123">
+                </div>
+                <div class="input-group">
+                    <label for="registerFullName">Full Name:</label>
+                    <input type="text" id="registerFullName" placeholder="John Doe" value="Test User">
+                </div>
+                <div class="button-group">
+                    <button class="btn-success" onclick="register()">Register</button>
+                    <button class="btn-info" onclick="login()">Login</button>
+                </div>
+                <div id="authToken" style="margin-top: 10px; font-size: 0.9em; color: #666;"></div>
+                <div id="authResponse" class="response-box" style="display: none;"></div>
+            </div>
+
+            <!-- Goals Management -->
+            <div class="section">
+                <h2>🎯 Goals Management</h2>
+                <div class="input-group">
+                    <label for="goalTitle">Goal Title:</label>
+                    <input type="text" id="goalTitle" placeholder="Learn Python" value="Master FastAPI Development">
+                </div>
+                <div class="input-group">
+                    <label for="goalDescription">Description:</label>
+                    <textarea id="goalDescription" rows="3" placeholder="Goal description">Build a complete REST API with FastAPI, PostgreSQL, and Redis</textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="createGoal()">Create Goal</button>
+                    <button class="btn-info" onclick="getGoals()">Get My Goals</button>
+                </div>
+                <div id="goalResponse" class="response-box" style="display: none;"></div>
+            </div>
+
+            <!-- Courses Management -->
+            <div class="section">
+                <h2>📚 Courses Management</h2>
+                <div class="input-group">
+                    <label for="courseTitle">Course Title:</label>
+                    <input type="text" id="courseTitle" placeholder="FastAPI Course" value="FastAPI Masterclass">
+                </div>
+                <div class="input-group">
+                    <label for="courseDescription">Description:</label>
+                    <textarea id="courseDescription" rows="3" placeholder="Course description">Complete guide to building production-ready APIs</textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="createCourse()">Create Course</button>
+                    <button class="btn-info" onclick="getCourses()">Get Courses</button>
+                </div>
+                <div id="courseResponse" class="response-box" style="display: none;"></div>
+            </div>
+
+            <!-- Tasks Management -->
+            <div class="section">
+                <h2>✅ Tasks Management</h2>
+                <div class="input-group">
+                    <label for="taskGoalId">Goal ID (from Goals section):</label>
+                    <input type="text" id="taskGoalId" placeholder="Goal ID">
+                </div>
+                <div class="input-group">
+                    <label for="taskTitle">Task Title:</label>
+                    <input type="text" id="taskTitle" placeholder="Task title" value="Setup development environment">
+                </div>
+                <div class="input-group">
+                    <label for="taskDescription">Description:</label>
+                    <textarea id="taskDescription" rows="3" placeholder="Task description">Install Python, create virtual environment, install dependencies</textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="createTask()">Create Task</button>
+                </div>
+                <div id="taskResponse" class="response-box" style="display: none;"></div>
+            </div>
+
+            <!-- WebSocket Connection -->
+            <div class="section">
+                <h2>🔌 WebSocket Connection</h2>
+                <p style="margin-bottom: 15px; color: #666;">Real-time updates for goals, tasks, and agent events</p>
+                <div class="button-group">
+                    <button class="btn-success" onclick="connectWebSocket()">Connect WebSocket</button>
+                    <button class="btn-primary" onclick="disconnectWebSocket()">Disconnect</button>
+                </div>
+                <div id="wsStatus" style="margin-top: 10px;"></div>
+                <div id="wsResponse" class="response-box" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let authToken = null;
+        let ws = null;
+
+        // Utility function to display response
+        function displayResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.textContent = JSON.stringify(data, null, 2);
+            if (isError) {
+                element.style.color = '#fc8181';
+            } else {
+                element.style.color = '#68d391';
+            }
+        }
+
+        // API Status
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                displayResponse('statusResponse', data);
+            } catch (error) {
+                displayResponse('statusResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getRoot() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                const data = await response.json();
+                displayResponse('statusResponse', data);
+            } catch (error) {
+                displayResponse('statusResponse', { error: error.message }, true);
+            }
+        }
+
+        // Authentication
+        async function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const fullName = document.getElementById('registerFullName').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        full_name: fullName
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResponse('authResponse', data);
+                } else {
+                    displayResponse('authResponse', data, true);
+                }
+            } catch (error) {
+                displayResponse('authResponse', { error: error.message }, true);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', email);
+                formData.append('password', password);
+
+                const response = await fetch(`${API_BASE}/api/v1/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.access_token;
+                    document.getElementById('authToken').innerHTML =
+                        `<span class="status-badge status-success">✓ Logged in</span>`;
+                    displayResponse('authResponse', data);
+                } else {
+                    displayResponse('authResponse', data, true);
+                }
+            } catch (error) {
+                displayResponse('authResponse', { error: error.message }, true);
+            }
+        }
+
+        // Goals
+        async function createGoal() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+
+            const title = document.getElementById('goalTitle').value;
+            const description = document.getElementById('goalDescription').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/goals`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                        priority: 'high',
+                        status: 'active'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResponse('goalResponse', data);
+                } else {
+                    displayResponse('goalResponse', data, true);
+                }
+            } catch (error) {
+                displayResponse('goalResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getGoals() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/goals`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                displayResponse('goalResponse', data);
+            } catch (error) {
+                displayResponse('goalResponse', { error: error.message }, true);
+            }
+        }
+
+        // Courses
+        async function createCourse() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+
+            const title = document.getElementById('courseTitle').value;
+            const description = document.getElementById('courseDescription').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/courses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                        instructor: 'AI Instructor',
+                        status: 'draft'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResponse('courseResponse', data);
+                } else {
+                    displayResponse('courseResponse', data, true);
+                }
+            } catch (error) {
+                displayResponse('courseResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getCourses() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/courses`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                displayResponse('courseResponse', data);
+            } catch (error) {
+                displayResponse('courseResponse', { error: error.message }, true);
+            }
+        }
+
+        // Tasks
+        async function createTask() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+
+            const goalId = document.getElementById('taskGoalId').value;
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+
+            if (!goalId) {
+                alert('Please enter a Goal ID first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                        goal_id: goalId,
+                        status: 'pending',
+                        priority: 'medium'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResponse('taskResponse', data);
+                } else {
+                    displayResponse('taskResponse', data, true);
+                }
+            } catch (error) {
+                displayResponse('taskResponse', { error: error.message }, true);
+            }
+        }
+
+        // WebSocket
+        function connectWebSocket() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+
+            const wsUrl = `ws://localhost:8000/api/v1/ws?token=${authToken}`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                document.getElementById('wsStatus').innerHTML =
+                    '<span class="status-badge status-success">✓ Connected</span>';
+                displayResponse('wsResponse', { status: 'WebSocket connected successfully' });
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                const currentContent = document.getElementById('wsResponse').textContent;
+                const newContent = `[${new Date().toLocaleTimeString()}] ${JSON.stringify(data, null, 2)}\n\n${currentContent}`;
+                document.getElementById('wsResponse').textContent = newContent;
+            };
+
+            ws.onerror = (error) => {
+                document.getElementById('wsStatus').innerHTML =
+                    '<span class="status-badge status-error">✗ Error</span>';
+                displayResponse('wsResponse', { error: 'WebSocket error occurred' }, true);
+            };
+
+            ws.onclose = () => {
+                document.getElementById('wsStatus').innerHTML =
+                    '<span class="status-badge status-error">✗ Disconnected</span>';
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+                document.getElementById('wsStatus').innerHTML =
+                    '<span class="status-badge status-error">✗ Disconnected</span>';
+            }
+        }
+
+        // Check API on load
+        window.onload = () => {
+            checkHealth();
+        };
+    </script>
+</body>
+</html>

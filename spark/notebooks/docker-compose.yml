@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Jupyter Notebook + ML Stack
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ml-notebooks
+    ports:
+      - "8888:8888"   # Jupyter Notebook
+      - "5000:5000"   # MLflow UI
+      - "4040:4040"   # Spark UI
+    volumes:
+      # Montar notebooks
+      - .:/workspace
+      # Persistir MLflow runs
+      - mlflow_data:/workspace/mlruns
+      # Persistir datos
+      - data_volume:/workspace/data
+    environment:
+      # Java
+      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      # Spark
+      - SPARK_HOME=/opt/spark
+      - PYSPARK_PYTHON=python3
+      - PYSPARK_DRIVER_PYTHON=python3
+      # MLflow
+      - MLFLOW_TRACKING_URI=./mlruns
+    networks:
+      - ml-network
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # PostgreSQL para almacenamiento de datos
+  postgres:
+    image: postgres:15-alpine
+    container_name: ml-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=mluser
+      - POSTGRES_PASSWORD=mlpassword
+      - POSTGRES_DB=mldb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ml-network
+    restart: unless-stopped
+
+  # MLflow Tracking Server (opcional - para setup avanzado)
+  mlflow-server:
+    image: python:3.10-slim
+    container_name: mlflow-server
+    ports:
+      - "5001:5000"
+    command: >
+      bash -c "pip install mlflow psycopg2-binary &&
+               mlflow server
+               --backend-store-uri postgresql://mluser:mlpassword@postgres:5432/mldb
+               --default-artifact-root /mlflow/artifacts
+               --host 0.0.0.0
+               --port 5000"
+    volumes:
+      - mlflow_artifacts:/mlflow/artifacts
+    networks:
+      - ml-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  mlflow_data:
+    driver: local
+  mlflow_artifacts:
+    driver: local
+  data_volume:
+    driver: local
+  postgres_data:
+    driver: local
+
+networks:
+  ml-network:
+    driver: bridge

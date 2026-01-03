@@ -52,22 +52,18 @@ Notebooks intermedios y avanzados con DuckDB, MLOps, y análisis especializados.
 | 13 | [DuckDB + Parquet Múltiple](13_duckdb_parquet_multiple.ipynb) | DuckDB, Parquet, PyArrow | Procesamiento de múltiples archivos Parquet particionados | ⭐⭐ |
 | 14 | [DuckDB + MLflow + TimeSeries](14_duckdb_mlflow_timeseries.ipynb) | DuckDB, MLflow, Prophet, ARIMA, LSTM | Forecasting con tracking de experimentos | ⭐⭐⭐ |
 | 15 | [MLflow + LangGraph](15_mlflow_langgraph.ipynb) | MLflow, LangGraph, LangChain, LLMs | Workflows de AI con tracking completo | ⭐⭐⭐⭐ |
-
-### 🎯 Serie Avanzada (En desarrollo)
-
-| # | Notebook | Tecnologías | Descripción | Estado |
-|---|----------|-------------|-------------|--------|
-| 16 | DuckDB + Scikit-learn | DuckDB, Sklearn, Feature Engineering | ML clásico con DuckDB analytics | 📝 Planeado |
-| 17 | DuckDB + SciPy | DuckDB, SciPy, Optimización | Análisis estadístico avanzado | 📝 Planeado |
+| 16 | [DuckDB + Scikit-learn + ONNX](16_duckdb_sklearn_onnx.ipynb) | DuckDB, Sklearn, ONNX, MLflow | ML clásico con export ONNX para producción | ⭐⭐⭐ |
+| 17 | [DuckDB + SciPy + Matemáticas](17_duckdb_scipy_mathematics.ipynb) | DuckDB, SciPy, NumPy, Estadística | Matemáticas, optimización y series temporales básicas | ⭐⭐ |
 
 ### 🎯 Serie Avanzada: MLOps & Production (⭐⭐⭐⭐ Experto)
 
-| # | Notebook | Tecnologías | Descripción | Estado |
-|---|----------|-------------|-------------|--------|
-| 18 | DuckDB + Airflow | DuckDB, Airflow, ETL | Orquestación de pipelines analytics | 📝 Planeado |
-| 19 | TimeSeries Avanzado | Prophet, ARIMA, LSTM, Transformers | Forecasting con deep learning | 📝 Planeado |
-| 20 | MLOps con ONNX | ONNX, Model Deployment, Serving | Exportación y deployment de modelos | 📝 Planeado |
-| 21 | Clustering Avanzado | K-Means, DBSCAN, HDBSCAN, UMAP | Análisis de clustering no supervisado | 📝 Planeado |
+| # | Notebook | Tecnologías | Descripción | Complejidad |
+|---|----------|-------------|-------------|-------------|
+| 18 | [DuckDB + RNN TimeSeries](18_duckdb_rnn_timeseries.ipynb) | DuckDB, PyTorch, LSTM, GRU, Attention, ONNX | Series temporales con redes recurrentes y export ONNX | ⭐⭐⭐⭐ |
+| 19 | DuckDB + Airflow | DuckDB, Airflow, ETL | Orquestación de pipelines analytics | 📝 Planeado |
+| 20 | TimeSeries Avanzado | Prophet, ARIMA, LSTM, Transformers | Forecasting con deep learning | 📝 Planeado |
+| 21 | MLOps con ONNX | ONNX, Model Deployment, Serving | Exportación y deployment de modelos | 📝 Planeado |
+| 22 | Clustering Avanzado | K-Means, DBSCAN, HDBSCAN, UMAP | Análisis de clustering no supervisado | 📝 Planeado |
 
 ---
 
@@ -131,7 +127,9 @@ Serie Básica → 13 DuckDB+MLflow → 14 DuckDB+PyTorch → 16 DuckDB+Sklearn
 
 ### Orchestration & MLOps
 - ![Airflow](https://img.shields.io/badge/Airflow-017CEE?style=flat&logo=apacheairflow&logoColor=white) **Airflow**: Workflow orchestration
-- **ONNX**: Model interoperability
+- **ONNX**: Model interoperability y export
+- **ONNX Runtime**: Inferencia optimizada
+- **skl2onnx**: Conversión Sklearn → ONNX
 - **Docker**: Containerization
 
 ### Visualization
@@ -147,24 +145,49 @@ Serie Básica → 13 DuckDB+MLflow → 14 DuckDB+PyTorch → 16 DuckDB+Sklearn
 
 ---
 
-## 📋 Requisitos
+## 📋 Requisitos e Instalación
 
-### Instalación Base
+### 🚀 Guía Completa de Instalación
+
+**Ver [SETUP.md](SETUP.md) para instrucciones detalladas de instalación.**
+
+La guía incluye:
+- ✅ Instalación con Docker (recomendado) - Setup rápido con todos los servicios
+- ✅ Instalación local sin Docker
+- ✅ Configuración de GPU (NVIDIA CUDA, Apple Silicon MPS)
+- ✅ Troubleshooting y solución de problemas comunes
+- ✅ Scripts de verificación de instalación
+
+### 🐳 Quick Start con Docker
+
 ```bash
-pip install pyspark pandas numpy matplotlib seaborn plotly
-pip install torch torchvision tensorflow scikit-learn
-pip install mlflow prophet statsmodels
-pip install duckdb pyarrow apache-airflow
-pip install langgraph langchain langchain-core faker
+# Opción más rápida - todo pre-configurado
+docker-compose up -d
+
+# Acceder a Jupyter: http://localhost:8888
+# MLflow UI: http://localhost:5000
+# Spark UI: http://localhost:4040
 ```
 
-### Requisitos por Notebook
-Cada notebook incluye su propio bloque de instalación al inicio.
+### 💻 Quick Start sin Docker
+
+```bash
+# Crear entorno virtual
+python3 -m venv venv
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Iniciar Jupyter
+jupyter notebook
+```
 
 ### Hardware Recomendado
 - **Básico**: 8GB RAM, CPU moderno
 - **Intermedio**: 16GB RAM, GPU opcional
-- **Avanzado**: 32GB RAM, GPU recomendada
+- **Avanzado**: 32GB RAM, GPU recomendada (NVIDIA o Apple Silicon)
 
 ---
 
@@ -174,11 +197,23 @@ Cada notebook incluye su propio bloque de instalación al inicio.
 ```bash
 git clone <repo-url>
 cd notebooks
-pip install -r requirements.txt  # Si existe
+
+# Opción A: Docker (recomendado)
+docker-compose up -d
+
+# Opción B: Local
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
+
+**Ver [SETUP.md](SETUP.md) para guía detallada.**
 
 ### 2. Ejecutar Notebooks
 ```bash
+# Docker: http://localhost:8888
+
+# Local:
 jupyter notebook
 # o
 jupyter lab
@@ -220,9 +255,11 @@ Al completar estas series, podrás:
 
 ✅ **MLOps**
 - Orquestar workflows con Airflow
+- Exportar modelos a ONNX (Sklearn, PyTorch, TensorFlow)
 - Deployar modelos en producción
-- Exportar modelos con ONNX
+- Inferencia optimizada con ONNX Runtime
 - Monitorear modelos en producción
+- A/B testing de prompts con LLMs
 
 ✅ **Analytics & Insights**
 - Visualizar datos efectivamente
@@ -273,13 +310,24 @@ Al completar estas series, podrás:
 
 - ✅ **Serie Existente (01-08)**: Completa
 - ✅ **Serie Básica (09-12)**: Completa
-- ✅ **Serie DuckDB + ML (13-15)**: Completa
-- 📝 **Serie Avanzada (16-17)**: Planeada
-- 📝 **Serie MLOps (18-21)**: Planeada
+- ✅ **Serie DuckDB + ML (13-17)**: Completa
+- 🚧 **Serie MLOps (18-22)**: En progreso (1/5 completado)
 
 **Última actualización**: Enero 2025
 
-### 📈 Progreso Total: 15/21 notebooks (71% completado)
+### 📈 Progreso Total: 18/22 notebooks (82% completado)
+
+### 🎯 Notebooks con ONNX Export
+- 14: TimeSeries (Prophet, ARIMA, LSTM) → ONNX ✅
+- 16: Scikit-learn (4 modelos) → ONNX ✅
+- 18: RNN (LSTM, GRU, Bidirectional, Attention) → ONNX ✅
+- Próximamente: TensorFlow modelos → ONNX
+
+### 🐳 Docker & Setup
+- ✅ Dockerfile con Spark, Java, Python 3.10
+- ✅ docker-compose.yml con Jupyter, MLflow, PostgreSQL
+- ✅ requirements.txt con todas las dependencias
+- ✅ SETUP.md con guía completa de instalación
 
 ---
 

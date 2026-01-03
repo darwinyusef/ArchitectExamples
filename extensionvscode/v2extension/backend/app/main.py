@@ -36,9 +36,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await init_redis()
     logger.info("✓ Redis connected")
 
-    # Initialize RabbitMQ
-    await init_rabbitmq()
-    logger.info("✓ RabbitMQ connected")
+    # Initialize RabbitMQ (optional for local development)
+    try:
+        await init_rabbitmq()
+        logger.info("✓ RabbitMQ connected")
+    except Exception as e:
+        logger.warning(f"⚠ RabbitMQ not available (running without event streaming): {e}")
 
     logger.info("🚀 Application ready!")
 
@@ -46,7 +49,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Shutdown
     logger.info("Shutting down...")
-    await close_rabbitmq()
+    try:
+        await close_rabbitmq()
+    except Exception:
+        pass
     await close_redis()
     logger.info("✓ Cleanup completed")
 

@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from app.agents.graph import AgentState
+from app.agents.state import AgentState
 
 logger = logging.getLogger(__name__)
 

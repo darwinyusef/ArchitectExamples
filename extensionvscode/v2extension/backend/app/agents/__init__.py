@@ -12,6 +12,7 @@ This module contains the 9 specialized agents:
 - Nodo 9: Contract Validator
 """
 
+from app.agents.state import AgentState
 from app.agents.graph import create_agent_graph
 
-__all__ = ["create_agent_graph"]
+__all__ = ["AgentState", "create_agent_graph"]

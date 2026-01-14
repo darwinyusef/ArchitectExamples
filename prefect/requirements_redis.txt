@@ -1,0 +1,19 @@
+# Dependencias para servicios pub/sub con Redis y API FastAPI
+
+# Redis asíncrono
+redis[hiredis]>=5.0.0
+
+# Inferencia ONNX
+onnxruntime>=1.16.0
+numpy>=1.24.0
+
+# FastAPI y servidor
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+
+# Cliente HTTP para tests
+requests>=2.31.0
+
+# Opcional: para cargar variables de entorno
+python-dotenv>=1.0.0

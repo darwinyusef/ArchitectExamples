@@ -1,0 +1,4 @@
+producto,costo_produccion,precio_detal,tiempo_seg,material_cm2,energia_kwh
+Caja 1 (Pequeña),32.1064,41.73832,360,24,0.025
+Caja 2 (Mediana),22.549082499999997,29.313807249999996,240,26,0.016
+Caja 3 (Grande),30.7517,39.97721,300,48,0.02

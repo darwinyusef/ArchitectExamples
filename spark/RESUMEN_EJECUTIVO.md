@@ -84,25 +84,6 @@ PostgreSQL (Results)
 # Orquestado por: Airflow
 ```
 
----
-
-## 📊 Estadísticas del Proyecto
-
-### **Líneas de Código**
-- Notebooks: ~5,000 líneas
-- Scripts Python: ~500 líneas
-- Configuración: ~300 líneas
-- **Total**: ~5,800 líneas
-
-### **Archivos Creados**
-- 8 Notebooks (.ipynb)
-- 6 Documentos (.md)
-- 4 Scripts (.sh)
-- 1 DAG de Airflow (.py)
-- 1 Docker Compose (.yml)
-- 1 Makefile
-- **Total**: 21 archivos principales
-
 ### **Tecnologías Integradas**
 ```
 ✅ Apache Spark 3.5.0

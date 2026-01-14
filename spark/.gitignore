@@ -68,3 +68,4 @@ data/processed/*
 .idea/
 *.swp
 *.swo
+.venv

@@ -1,0 +1,11 @@
+venv
+static/docs
+__pycache__
+*.pyc
+instance
+.env
+.coverage
+mlruns
+.DS_Store
+*.sqlite3
+/mlruns

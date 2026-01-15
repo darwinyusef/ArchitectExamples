@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cotización Láser</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔷 Sistema de Cotización de Corte Láser</h1>
+            <p class="subtitle">Cálculo de costos con modelo de Machine Learning (ONNX)</p>
+            <nav class="header-nav">
+                <a href="/" class="nav-link active">🏠 Cotizaciones</a>
+            </nav>
+        </header>
+
+        <!-- Estadísticas del Servicio -->
+        <section class="stats-section">
+            <h2>📊 Estadísticas del Servicio</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCotizaciones">-</div>
+                    <div class="stat-label">Total Cotizaciones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="cotizacionesExitosas">-</div>
+                    <div class="stat-label">Exitosas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="errores">-</div>
+                    <div class="stat-label">Errores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="uptime">-</div>
+                    <div class="stat-label">Uptime (min)</div>
+                </div>
+            </div>
+            <button onclick="cargarEstadisticas()" class="btn btn-secondary">🔄 Actualizar</button>
+        </section>
+
+        <!-- Productos Predefinidos -->
+        <section class="products-section">
+            <h2>📦 Productos Predefinidos</h2>
+            <div class="products-grid" id="productsGrid">
+                <!-- Se carga dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Formulario de Cotización Personalizada -->
+        <section class="form-section">
+            <h2>✏️ Cotización Personalizada</h2>
+            <form id="cotizacionForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tiempoSeg">Tiempo de Corte (segundos)</label>
+                        <input type="number" id="tiempoSeg" name="tiempoSeg"
+                               min="0.01" step="0.01" required
+                               placeholder="Ej: 360">
+                        <small>Tiempo que tarda el láser en cortar la pieza</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="materialCm2">Área de Material (cm²)</label>
+                        <input type="number" id="materialCm2" name="materialCm2"
+                               min="0.01" step="0.01" required
+                               placeholder="Ej: 24">
+                        <small>Área total del material a cortar</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="energiaKwh">Energía Consumida (kWh)</label>
+                        <input type="number" id="energiaKwh" name="energiaKwh"
+                               min="0.001" step="0.001" required
+                               placeholder="Ej: 0.025">
+                        <small>Energía eléctrica consumida</small>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">💰 Calcular Cotización</button>
+            </form>
+        </section>
+
+        <!-- Resultado de Cotización -->
+        <section class="result-section" id="resultSection" style="display: none;">
+            <h2>💵 Resultado de la Cotización</h2>
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="result-id" id="resultId">-</span>
+                    <span class="result-status" id="resultStatus">✓ Calculado</span>
+                </div>
+                <div class="result-body">
+                    <div class="result-item">
+                        <span class="result-label">Parámetros:</span>
+                        <span class="result-value" id="resultParams">-</span>
+                    </div>
+                    <div class="result-item highlight">
+                        <span class="result-label">Costo de Producción:</span>
+                        <span class="result-value" id="resultCosto">$0.00 COP</span>
+                    </div>
+                    <div class="result-item highlight">
+                        <span class="result-label">Precio al Detal:</span>
+                        <span class="result-value price" id="resultPrecio">$0.00 COP</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Margen Aplicado:</span>
+                        <span class="result-value" id="resultMargen">30%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Timestamp:</span>
+                        <span class="result-value" id="resultTimestamp">-</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Historial de Cotizaciones -->
+        <section class="history-section">
+            <h2>📜 Historial de Cotizaciones</h2>
+            <div class="history-controls">
+                <button onclick="limpiarHistorial()" class="btn btn-secondary">🗑️ Limpiar</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <p class="empty-message">No hay cotizaciones en el historial</p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Procesando...</p>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
